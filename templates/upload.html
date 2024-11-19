@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<form method="post" enctype="multipart/form-data">
+    <div class="input-group mb-3">
+        <input type="file" class="form-control"
+               name="datainput" 
+               id="datainput">
+        <button class="btn btn-outline-secondary" type="submit"
+                id="datainputbutton">Upload</button>
+    </div>
+</form>
+    
+
+{{table | safe}}
+
+{% endblock %}

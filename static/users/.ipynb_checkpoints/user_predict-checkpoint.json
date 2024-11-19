@@ -1,0 +1,1 @@
+{"ABC": [{"ticker": "AAPL", "prediction": "buy"}, {"ticker": "MSFT", "prediction": "hold"}], "123": [{"ticker": "TSLA", "prediction": "buy"}, {"ticker": "AMZN", "prediction": "sell"}]}
