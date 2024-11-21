@@ -1,42 +1,18 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-12 text-center">
-            <p> Hahaha:w. HAHAHHA</p>
-        </div>
-    </div>
-    <div class="row justify-content-center">
-        <div class="col-6 col-md-3 col-sm-4">
-            <img src="{{url_for('static', filename='img/logo.png')}}"
-                 class="img-fluid mx-auto" alt="IS3240 Logo">
-        </div>
-    </div>
-</div>
 
 
-<table class="table mt-3">
-    <thead>
-        <tr>
-            <th scope="col">Product</th>
-            <th scope="col">Price</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>Item 1</td>
-            <td>$10</td>
-        </tr>
-        <tr>
-            <td>Item 2</td>
-            <td>$15</td>
-        </tr>
-        <tr>
-            <td>Item 3</td>
-            <td>$20</td>
-        </tr>
-    </tbody>
-</table>
+  <main class="px-3">
+    <h1>Cover your page.</h1>
+    <p class="lead">Cover is a one-page template for building simple and beautiful home pages. Download, edit the text, and add your own fullscreen background photo to make it your own.</p>
+    <p class="lead">
+      <a href="https://getbootstrap.com/" class="btn btn-lg btn-light fw-bold border-white bg-dark text-white" target="_blank">Learn more</a>
+    </p>
+  </main>
+
+  <!-- <footer class="mt-auto text-white-50">
+    <p>Cover template for <a href="https://getbootstrap.com/" class="text-white">Bootstrap</a>, by <a href="https://twitter.com/mdo" class="text-white">@mdo</a>.</p>
+  </footer> -->
 
 {% endblock %}
