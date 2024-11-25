@@ -5,11 +5,17 @@ import json, flask_login, datetime, requests, base64
 from hashlib import sha256
 from models import *
 from io import BytesIO
+import os
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 
 app = Flask(__name__)
 app.secret_key = "9773e89f69e69285cf11c10cbc44a37945f6abbc5d78d5e20c2b1b0f12d75ab7" # we need to change it
+
+# Make the uploads folder
+upload_folder = 'uploads'
+os.makedirs(upload_folder, exist_ok=True)
+app.config['upload_folder'] = upload_folder
 
 # Login
 login_manager = flask_login.LoginManager()
@@ -247,3 +253,69 @@ def logout():
 @app.route('/about')
 def about():
     return render_template('about.html')
+
+@app.route('/dashboard', methods=['POST', 'GET'])
+def dashboard():
+    return render_template('dashboard.html')
+
+@app.get('/test')
+def test():
+    return render_template('test.html')
+
+
+# Function to save the uploaded file and possibly for data processing
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return render_template('dashboard.html', msg = 'No File Detected')
+
+    file = request.files['file']
+
+    if file.filename == '':
+        return render_template('dashboard.html', msg = 'No File Uploaded')
+
+    if file:
+        # Save the file to the upload folder
+        file_path = os.path.join(app.config['upload_folder'], file.filename)
+        file.save(file_path)
+
+    return redirect(url_for('index'))
+
+@app.route("/bmi")
+def bmi():
+    # Simulate BMI data for a month
+    days = np.arange(1, 31)  # Days of the month
+    np.random.seed(42)  # For reproducibility
+    bmi_values = 22 + np.random.uniform(-2, 2, size=30)  # Generate BMI values around 22
+
+    # Define the healthy BMI range
+    healthy_bmi_min = 18.5
+    healthy_bmi_max = 24.9
+
+    # Create a Matplotlib figure
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    # Plot the BMI data as a line and scatter plot
+    ax.plot(days, bmi_values, label="BMI (Line)", linestyle="--", color="blue", alpha=0.7)
+    ax.scatter(days, bmi_values, label="BMI (Scatter)", color="blue", s=50)
+
+    # Highlight the healthy BMI range
+    ax.axhspan(healthy_bmi_min, healthy_bmi_max, color="green", alpha=0.2, label="Healthy BMI Range")
+
+    # Customize the plot
+    ax.set_title("BMI Throughout the Month", fontsize=14)
+    ax.set_xlabel("Day of Month", fontsize=12)
+    ax.set_ylabel("BMI", fontsize=12)
+    ax.legend(fontsize=10, loc="upper right")
+    ax.grid(alpha=0.3)
+
+    # Dynamically set the y-axis limits based on BMI values
+    bmi_min = max(0, bmi_values.min() - 2)  # Small margin below
+    bmi_max = bmi_values.max() + 2         # Small margin above
+    ax.set_ylim(bmi_min, bmi_max)
+
+    # Convert the Matplotlib figure to an interactive HTML with mpld3
+    interactive_chart = mpld3.fig_to_html(fig)
+    plt.close(fig)  # Close the figure to save memory
+
+    return render_template("bmi.html", chart=interactive_chart)
