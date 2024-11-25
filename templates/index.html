@@ -1,18 +1,24 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
-
+<div>
   <main class="px-3">
+    {% if msg == 'logged in' %}
+      <div class="alert alert-success alert-dismissible fade show position-fixed start-50 translate-middle-x w-50 text-center" role="alert" style="bottom: 20%; z-index: 1050;">
+        You are logged in!
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% elif msg == 'deleted' %}
+      <div class="alert alert-success alert-dismissible fade show position-fixed start-50 translate-middle-x w-50 text-center" role="alert" style="bottom: 20%; z-index: 1050;">
+        Your account has been successfully deleted!
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endif %}
     <h1>Cover your page.</h1>
     <p class="lead">Cover is a one-page template for building simple and beautiful home pages. Download, edit the text, and add your own fullscreen background photo to make it your own.</p>
     <p class="lead">
-      <a href="https://getbootstrap.com/" class="btn btn-lg btn-light fw-bold border-white bg-dark text-white" target="_blank">Learn more</a>
+      <a href="#" class="btn btn-lg btn-light fw-bold border-white bg-dark text-white">Learn more</a>
     </p>
   </main>
-
-  <!-- <footer class="mt-auto text-white-50">
-    <p>Cover template for <a href="https://getbootstrap.com/" class="text-white">Bootstrap</a>, by <a href="https://twitter.com/mdo" class="text-white">@mdo</a>.</p>
-  </footer> -->
-
+</div>
 {% endblock %}
