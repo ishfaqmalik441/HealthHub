@@ -40,7 +40,8 @@ def load_user(userid):
 
 @app.get('/')
 def index():
-    return render_template('index.html')
+    msg = request.args.get('msg')
+    return render_template('index.html', msg=msg)
 
 @app.post('/')
 def search():
