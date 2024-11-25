@@ -149,7 +149,7 @@ def login():
         # Login the user
         user = User(user_json['username'], user_json['password'])
         flask_login.login_user(user)
-        return redirect(url_for('index', msg="logged in"))
+        return redirect(url_for('dashboard', msg="logged in"))
 
     elif request.method == 'POST' and 'signup' in request.form:
         return redirect(url_for('signup'))
