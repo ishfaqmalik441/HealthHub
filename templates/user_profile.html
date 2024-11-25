@@ -23,13 +23,13 @@
                                 {% if editPWD == 'No' %}
                                 <td>
                                     <input type="password" class="form-control-plaintext text-center"
-                                        placeholder="{{current_user.password}}" readonly>
+                                        placeholder="******" readonly>
                                 </td>
                                 {% else %}
                                 <td>
                                     <input type="password" class="form-control text-center"
                                         name="password"
-                                        placeholder="{{current_user.password}}">
+                                        placeholder="******">
                                 </td>
                                 <td>
                                     <button type="submit" id="confirmPWD"
