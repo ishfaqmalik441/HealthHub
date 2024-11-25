@@ -1,21 +1,6 @@
 {% extends 'base.html' %}
 
-<!-- {% block title%}Dashboard Health and Fitness{% endblock %} -->
-
-<!-- {% block navbar %}
-<div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column" style="background-color: black;">
-  <div>
-    <h3 class="float-md-start mb-0" style="color: white;">Health & Fitness</h3>
-    <nav class="nav nav-masthead justify-content-center float-md-end">
-      <a class="nav-link fw-bold py-1 px-1 text-light me-4" aria-current="page" href="/">Home</a>
-      <a class="nav-link fw-bold py-1 px-1 text-light" href="/login">Sign out</a>
-    </nav>
-  </div>
-</div>
-{% endblock %} -->
-
 {% block content %}
-
 {% if msg == 'No File Uploaded' %}
 <div class="alert alert-warning alert-dismissible fade show" role="alert">
   No file was uploaded
@@ -32,75 +17,51 @@
 
 <div class="container-fluid">
     <div class="row vh-100">
-      <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
-        <div class="position-sticky pt-3 sidebar-sticky">
-          <ul class="nav flex-column vh-100">
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="/bmi" style="color: black">
-                <span data-feather="Home" class="align-text-bottom"></span>
-                BMI
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#" style="color: black;">
-                <span data-feather="file" class="align-text-bottom"></span>
-                DataVis1
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#" style="color: black;">
-                <span data-feather="shopping-cart" class="align-text-bottom"></span>
-                DataVis2
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#" style="color: black;">
-                <span data-feather="users" class="align-text-bottom"></span>
-                Customers
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#" style="color: black;">
-                <span data-feather="bar-chart-2" class="align-text-bottom"></span>
-                Reports
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#" style="color: black;">
-                <span data-feather="layers" class="align-text-bottom"></span>
-                Integrations
-              </a>
-            </li>
-          </ul>
-        </div>
-      </nav>
-  
-      {% block main %}
-      <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-          <h1 class="h2">Hello User!</h1> <!-- The 'User' is just a placeholder, the actual name of the person who logs in will be replaced with this-->
-          <!-- <div class="btn-toolbar mb-2 mb-md-0">
-            <div class="btn-group me-2">
-              <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
-              <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
+        <!-- Main content section with full-width layout -->
+        <main class="col-12 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Hello User!</h1>
             </div>
-            <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">
-              <span data-feather="calendar" class="align-text-bottom"></span>
-              This week
-            </button>
-          </div> -->
-        </div>
-        <div>
-            <h4>Upload your CSV file containing your health and workout data below:</h4>
-            <br>
-            <form action="/upload" method="POST" enctype="multipart/form-data">
-                <input type="file" id="fileUploadButton" name="file" accept=".csv, .xlsx">
-                <button type="submit" style="border-radius: 5px; background-color: black; color: white;">Upload</button>
-            </form>
-        </div>
-      </main>
-      {% endblock %}
+            <!-- File upload section -->
+            <div>
+                <h4>Upload your latest CSV file containing your health and workout data below:</h4>
+                <br>
+                <form action="/upload" method="POST" enctype="multipart/form-data">
+                    <input type="file" id="fileUploadButton" name="file" accept=".csv, .xlsx">
+                    <button type="submit" style="border-radius: 5px; background-color: black; color: white;">Upload</button>
+                </form>
+            </div>
+
+            <!-- Section with icons, buttons, and descriptions -->
+            <div class="mt-5">
+                <div class="row justify-content-center">
+                    <div class="col-md-3 text-center mb-4">
+                        <img src="https://www.tataaia.com/content/dam/tataaialifeinsurancecompanylimited/calculator/life-planning-tools/bmi-calculator/banner-image-bmi.png" alt="Icon 1" class="img-fluid mb-3">
+                        <h5>BMI Calculator</h5>
+                        <p>The Body Mass Index is calculated by dividing an adult's weight in kilograms by their height in metres squared.</p>
+                        <a href="#" class="btn btn-primary">Go to BMI Calculator</a>
+                    </div>
+                    <div class="col-md-3 text-center mb-4">
+                        <img src="https://via.placeholder.com/100" alt="Icon 2" class="img-fluid mb-3">
+                        <h5>DataVis2</h5>
+                        <p>Description of  2</p>
+                        <a href="#" class="btn btn-primary">Go to DataVis2</a>
+                    </div>
+                    <div class="col-md-3 text-center mb-4">
+                        <img src="https://via.placeholder.com/100" alt="Icon 3" class="img-fluid mb-3">
+                        <h5>DataVis3</h5>
+                        <p>Description of  3</p>
+                        <a href="#" class="btn btn-primary">Go to DataVis3</a>
+                    </div>
+                    <div class="col-md-3 text-center mb-4">
+                        <img src="https://via.placeholder.com/100" alt="Icon 4" class="img-fluid mb-3">
+                        <h5>DataVis4</h5>
+                        <p>Description of  4</p>
+                        <a href="#" class="btn btn-primary">Go to DataVis4</a>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
 </div>
-
 {% endblock %}
