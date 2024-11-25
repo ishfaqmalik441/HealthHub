@@ -8,30 +8,26 @@
 </div>
 {% endif %}
 
-<div class="container">
-    <div class="row justify-content-center">
-    <form method="post">
-        <div class="form-group">
-            <label for="username" style="font-size: 24px;"> Username</label>
-            <div class="form-group">
-            <input type="text" class="form-control" 
-                   style="width: 500px; height: 60px; font-size: 18px; margin: 0 auto; padding: 10px;" 
+<div class="d-flex justify-content-center align-items-center vh-100">
+    <form method="post" class="text-center" style="margin-top: -110px;">
+        <div class="form-group mb-3">
+            <label for="username" style="font-size: 24px;">Username</label>
+            <input type="text" class="form-control mx-auto" 
+                   style="width: 500px; height: 60px; font-size: 18px; padding: 10px;" 
                    name="username" id="username" placeholder="Enter Username">
         </div>
 
-        <div class="form-group">
-            <label for="email" style="font-size: 24px;">Password</label>
-            <div class="form-group">
-            <input type="password" class="form-control" 
-                   style="width: 500px; height: 60px; font-size: 18px; margin: 0 auto; padding: 10px;" 
+        <div class="form-group mb-3">
+            <label for="password" style="font-size: 24px;">Password</label>
+            <input type="password" class="form-control mx-auto" 
+                   style="width: 500px; height: 60px; font-size: 18px; padding: 10px;" 
                    name="password" id="password" placeholder="Enter Password">
         </div>
 
         <div class="form-group">
-            <br>
-            <button type="login" class="btn btn-lg btn-light fw-bold border-white bg-dark text-white">Signup</button>
+            <button type="submit" class="btn btn-lg btn-light fw-bold border-white bg-dark text-white">Signup</button>
         </div>
     </form>
-<div>
+</div>
 
 {% endblock %}
