@@ -1,48 +1,49 @@
 {% extends 'base.html' %}
-
 {% block content %}
+
 {% if msg == 'mismatch' %}
-<div class="alert alert-warning alert-dismissible fade show" role="alert">
-  Your username and/or password are incorrect. Please enter again.
-  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-    <span aria-hidden="true">&times;</span>
-  </button>
+<div class="alert alert-danger alert-dismissible fade show position-fixed start-50 translate-middle-x w-50 text-center" role="alert" style="bottom: 20%; z-index: 1050;">
+  Password is incorrect. Please try again.
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% elif msg == 'notexist' %}
+<div class="alert alert-danger alert-dismissible fade show position-fixed start-50 translate-middle-x w-50 text-center" role="alert" style="bottom: 20%; z-index: 1050;">
+    User does not exist. Please sign up or try again.
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
 {% elif msg == 'signup' %}
-<div class="alert alert-success alert-dismissible fade show" role="alert">
-  Congratulations! Your user account has been created. Please now login with your crendentials.
-  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-    <span aria-hidden="true">&times;</span>
+<div class="alert alert-success alert-dismissible fade show position-fixed start-50 translate-middle-x w-50 text-cente" role="alert" style="bottom: 20%; z-index: 1050;">
+    Your user account has been created. Please now login again.
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
   </button>
 </div>
 {% endif %}
 
-
-<br>
-<br>
-
-<div class="container">
+<body>
+  <div class="content d-flex justify-content-center align-items-center w-100 text-center h-75">
+  <div class="container">
     <div class="row justify-content-center">
-    <form method="post">
+      <form method="post"> 
+        <h1 class="h3 mb-3 fw-normal text-center">Please Sing In</h1>
+        <br>
         <div class="form-group">
-            <label for="username">Username</label>
-            <input type="text" class="form-control"
-                   name="username"
-                   id="username" placeholder="Enter username.">
+            <input type="text" class="form-control" 
+                   style="width: 350px; height: 60px; font-size: 18px; margin: 0 auto; padding: 10px;" 
+                   name="username" id="username" placeholder="Username">
         </div>
-
         <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" class="form-control" id="password" 
-                   name="password"
-                   placeholder="Enter password.">
+          <input type="password" class="form-control" 
+                  style="width: 350px; height: 60px; font-size: 18px; margin: 0 auto; padding: 10px;" 
+                  name="password" id="password" placeholder="Password">
         </div>
-
         <div class="form-group">
-            <button name="login" class="btn btn-primary">Submit</button>
-            <button name="signup" class="btn btn-info">Signup</button>
+          <br>
+          <button class="btn btn-lg btn-light fw-bold border-white bg-dark text-white" name="login">Sign in</button>
+          <button class="btn btn-lg btn-light fw-bold border-white bg-dark text-white" name="signup">Sign up</button>
         </div>
-    </form>
-<div>
+      </form>
+    </div>
+  </div>
+</body>
 
 {% endblock %}

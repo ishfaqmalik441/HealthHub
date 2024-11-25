@@ -23,8 +23,8 @@ login_manager.init_app(app)
 
 # data files
 global USER_CREDENTIALS, USER_PREDICTIONS
-USER_CREDENTIALS = './static/users/users.json'
-USER_PREDICTIONS = './static/users/user_predict.json'
+USER_CREDENTIALS = 'static/users/credentials.json'
+USER_PREDICTIONS = 'static/users/user_predict.json'
 
 # API URL
 TODAY = datetime.date.today()
@@ -36,7 +36,6 @@ URL_BASE = "https://api.polygon.io/v2/aggs/ticker/MYTICKER/range/1/day/%s/%s"%(O
 def load_user(userid):
     user_json = pd.read_json(USER_CREDENTIALS).get(userid)
     return User(user_json['username'],
-                user_json['email'],
                 user_json['password'])
 
 @app.get('/')
@@ -100,7 +99,6 @@ def search():
 def signup():
     if request.method == 'POST':
         username = request.form.get('username')
-        email = request.form.get('email')
         password = request.form.get('password')
         password_hash = sha256(password.encode('utf-8')).hexdigest()
 
@@ -117,7 +115,7 @@ def signup():
             # x in existing_usernames(['x', 'y', 'z']) --> true, x is inside
             return render_template('signup.html', msg='username')
         # if not, go ahead and put it to the JSON (append)
-        user_series = pd.Series(dict(username=username, password=password_hash, email=email))
+        user_series = pd.Series(dict(username=username, password=password_hash))
         user_existing.loc[sha256(username.encode('utf-8')).hexdigest()] = user_series
         user_existing.to_json(USER_CREDENTIALS, orient='index')
         return redirect(url_for('login', msg='signup'))
@@ -125,30 +123,36 @@ def signup():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    # when clikcing the login button:
     if request.method == 'POST' and 'login' in request.form:
-        username = request.form['username']
-        password = request.form['password']
-        # obtain the hash
+        # Get form data
+        username = request.form.get('username')  # Use .get() to avoid KeyErrors
+        password = request.form.get('password')
+
+        # Hash username and password
         userid = sha256(username.encode('utf-8')).hexdigest()
         password_hash = sha256(password.encode('utf-8')).hexdigest()
 
-        # load the user as an User object
-        user_json = pd.read_json(USER_CREDENTIALS).get(userid)
-        user = User(user_json['username'], user_json['email'], user_json['password'])
+        # Load users.json
+        with open(USER_CREDENTIALS, 'r') as file:
+            users = json.load(file)  # Load JSON data as a dictionary
 
-        # if user does not exist or if password does not match
-        if user is None or password_hash != user.password:
+        # Check if user exists
+        user_json = users.get(userid)
+        if user_json is None:  # If user does not exist
+            return render_template('login.html', msg="notexist")
+
+        # Check if password matches
+        if user_json['password'] != password_hash:
             return render_template('login.html', msg="mismatch")
-        # else, login success; redirect to user page
-        else:
-            flask_login.login_user(user)
-            flash("You're logged in!")
-            #return redirect(url_for('user', name=user.username))
-            return redirect(url_for('index'))
-    # when clikcing the signup button
+
+        # Login the user
+        user = User(user_json['username'], user_json['password'])
+        flask_login.login_user(user)
+        return redirect(url_for('index', msg="logged in"))
+
     elif request.method == 'POST' and 'signup' in request.form:
         return redirect(url_for('signup'))
+
     return render_template('login.html', msg=request.args.get('msg'))
 
 @app.get('/user/<name>')
@@ -161,34 +165,30 @@ def user(name):
 @flask_login.login_required
 def user_edit(name):
     user = flask_login.current_user
-    if 'editEmail' in request.form:
-        return render_template('user_profile.html', edit="Yes", editPWD='No',
-                               name=user.username)
-    elif 'editPWD' in request.form:
-        return render_template('user_profile.html', editPWD="Yes", edit='No',
-                               name=user.username)
+    msg = None  # Default message
+
+    if 'editPWD' in request.form:
+        return render_template('user_profile.html', editPWD="Yes", name=user.username, msg=msg)
+    elif "delAC" in request.form:
+        user_json = pd.read_json(USER_CREDENTIALS)
+        user_json.drop(user.id, axis=1, inplace=True)
+        user_json.to_json(USER_CREDENTIALS)
+        flask_login.logout_user()  # Log the user out
+        msg="deleted"
+        return redirect(url_for('index', msg=msg))
     else:
         user_json = pd.read_json(USER_CREDENTIALS)
-        # email
-        try:
-            new_email = request.form['email']
-            user_json.loc['email', user.id] = new_email
-        except:
-            pass
-            
-        # pwd
+        # Password update
         try:
             new_password = request.form['password']
             new_password = sha256(new_password.encode('utf-8')).hexdigest()
             user_json.loc['password', user.id] = new_password
-            # .loc[x, y] --> specifies the rows and the columns to access
+            msg = "Password updated successfully!"
         except:
             pass
-        
-        user_json.to_json(USER_CREDENTIALS) #.to_json --> convert a pandas DataFrame or Series into JSON format
-        user = User(*user_json[user.id].values)
-        #user_json[user.id].values --> get the value stored in dictionary  
-        return redirect(url_for('user', name=user.username)) #linked to @app.get('/user/<name>')
+
+        user_json.to_json(USER_CREDENTIALS)
+        return render_template('user_profile.html', editPWD="No", name=user.username, msg=msg)
 
 '''
 @app.post('/user/<name>')
