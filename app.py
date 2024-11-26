@@ -377,7 +377,6 @@ def bmi(name):
     # Encode PNG image to base64 string
     buf_str = "data:image/png;base64,"
     buf_str += base64.b64encode(buf.getvalue()).decode('utf8')
-<<<<<<< Updated upstream
             
     if bmi_stats_dict['avgbmi'] < 18.5:
         category = 'Underweight'
@@ -389,9 +388,6 @@ def bmi(name):
         category = 'Obese'
         
     return render_template("bmi.html", imgsrc=buf_str, name=name, stat_dict = bmi_stats_dict, category=category)
-=======
-
-    return render_template("bmi.html", imgsrc=buf_str, name=name)
 
 @app.get("/dashboard/radar/<name>")
 @flask_login.login_required
@@ -466,5 +462,4 @@ def radar(name):
     buf_str += base64.b64encode(buf.getvalue()).decode('utf8')
 
     # Return the image and title in the template
-    return render_template("bmi.html", imgsrc=buf_str, name=name)
->>>>>>> Stashed changes
+    return render_template("radar.html", imgsrc=buf_str, name=name)
