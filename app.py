@@ -149,7 +149,7 @@ def login():
         # Login the user
         user = User(user_json['username'], user_json['password'])
         flask_login.login_user(user)
-        return redirect(url_for('dashboard', msg="logged in"))
+        return redirect(url_for('dashboard', msg="logged in", name = flask_login.current_user.username))
 
     elif request.method == 'POST' and 'signup' in request.form:
         return redirect(url_for('signup'))
@@ -255,9 +255,11 @@ def logout():
 def about():
     return render_template('about.html')
 
-@app.route('/dashboard', methods=['POST', 'GET'])
-def dashboard():
-    return render_template('dashboard.html')
+@app.get('/dashboard/<name>')
+@flask_login.login_required
+def dashboard(name):
+    message = request.args.get('msg', default="Welcome!")  # Default message if not provided
+    return render_template('dashboard.html', msg = message, name = name)
 
 @app.get('/test')
 def test():
@@ -265,58 +267,75 @@ def test():
 
 
 # Function to save the uploaded file and possibly for data processing
-@app.route('/upload', methods=['POST'])
-def upload_file():
-    if 'file' not in request.files:
-        return render_template('dashboard.html', msg = 'No File Detected')
-
+@app.post('/upload/<name>')
+def upload_file(name):
     file = request.files['file']
 
     if file.filename == '':
-        return render_template('dashboard.html', msg = 'No File Uploaded')
-
+        return redirect(url_for('dashboard', msg = 'No File Uploaded', name = name))
     if file:
-        # Save the file to the upload folder
-        file_path = os.path.join(app.config['upload_folder'], file.filename)
-        file.save(file_path)
+        if file.filename.endswith('.csv'):
+            data = pd.read_csv(file)
+        elif file.filename.endswith('.xls') or file.filename.endswith('.xlsx'):
+            data = pd.read_excel(file)
+        else:
+            return redirect(url_for('dashboard', msg = 'File Type not supported', name = name))
+        with pd.ExcelWriter("static/user_workout_DB/Users.xlsx", mode='a', if_sheet_exists='replace') as writer:
+            data.to_excel(writer, sheet_name=f"workout_data_{name}", index=False)
+        # data.to_excel('static/user_workout_DB/Users.xlsx', sheet_name = "workout_data_%s"%name, index = False)
+        return redirect(url_for('dashboard', msg = 'File Uploaded', name = name))
 
-    return redirect(url_for('index'))
+# Function for calculating the user BMI
+def calculate_bmi(weight, height_cm):
+    height_m = height_cm / 100  # Convert height to meters
+    return round(weight / (height_m ** 2), 1)  # Calculate BMI and round to 2 decimal places
 
-@app.route("/bmi")
-def bmi():
-    # Simulate BMI data for a month
-    days = np.arange(1, 31)  # Days of the month
-    np.random.seed(42)  # For reproducibility
-    bmi_values = 22 + np.random.uniform(-2, 2, size=30)  # Generate BMI values around 22
+# Function for analysing and processing the user data, and providing a visualization of the User's BMI
+@app.get("/dashboard/bmi/<name>")
+@flask_login.login_required
+def bmi(name):
+    user = flask_login.current_user
+    user_data = pd.read_excel('static/user_workout_DB/Users.xlsx', sheet_name = ['workout_data_%s'%user.username])
+    user_data = user_data['workout_data_%s'%user.username]   
+    user_data['height'] = user_data['height'][0]
 
-    # Define the healthy BMI range
-    healthy_bmi_min = 18.5
+    user_data['Date'] = user_data['Date'].dt.date
+    user_data['BMI'] = calculate_bmi(user_data['weight_record'], user_data['height'])
     healthy_bmi_max = 24.9
+    healthy_bmi_min = 18.5
+    count = user_data['BMI'].count()
+    healthyDays = 0
+    for bmi in user_data['BMI']:
+        if bmi > 18.5 and bmi < 25:
+            healthyDays = healthyDays + 1
 
-    # Create a Matplotlib figure
-    fig, ax = plt.subplots(figsize=(10, 6))
-
-    # Plot the BMI data as a line and scatter plot
-    ax.plot(days, bmi_values, label="BMI (Line)", linestyle="--", color="blue", alpha=0.7)
-    ax.scatter(days, bmi_values, label="BMI (Scatter)", color="blue", s=50)
-
-    # Highlight the healthy BMI range
-    ax.axhspan(healthy_bmi_min, healthy_bmi_max, color="green", alpha=0.2, label="Healthy BMI Range")
-
-    # Customize the plot
-    ax.set_title("BMI Throughout the Month", fontsize=14)
-    ax.set_xlabel("Day of Month", fontsize=12)
-    ax.set_ylabel("BMI", fontsize=12)
-    ax.legend(fontsize=10, loc="upper right")
-    ax.grid(alpha=0.3)
-
-    # Dynamically set the y-axis limits based on BMI values
-    bmi_min = max(0, bmi_values.min() - 2)  # Small margin below
-    bmi_max = bmi_values.max() + 2         # Small margin above
+    fig = Figure(figsize=[10, 6])
+    ax_arr = fig.subplots(ncols=1)
+    ax = ax_arr
+    ax.plot(user_data['Date'], user_data['BMI'], label="BMI (Line)", color='blue', linestyle='--', alpha=0.6)
+    ax.scatter(user_data['Date'], user_data['BMI'], label="BMI (Scatter)", color='blue', s=60)
+    ax.axhspan(healthy_bmi_min, healthy_bmi_max, color='green', label='Healthy BMI Range (18.5 - 24.9)', alpha=0.2)
+    bmi_min = max(0, user_data['BMI'].min() - 1)  # Leave some margin below the lowest value
+    bmi_max = user_data['BMI'].max() + 1         # Leave some margin above the highest value
     ax.set_ylim(bmi_min, bmi_max)
+    # ax.yaxis.set_major_locator(MaxNLocator(nbins=8))  # Maximum of 8 ticks for better readability
+    ax.set_xlabel("Date")
+    ax.set_ylabel("BMI")
+    ax.set_title('BMI Throughout the Month', fontsize=14)
+    ax.legend(loc='upper right', fontsize=10)
+    ax.annotate(text = str.format("In the past %d days your BMI was in the healthy range for %d days"%(count ,healthyDays)),
+                xy=[datetime.date(2024, 11, 23), 23.5 ], xycoords='data',
+                xytext=(0.1, 0.92), textcoords='axes fraction'
+                )   
+    ax.grid(alpha=0.3)
+    fig.tight_layout()
 
-    # Convert the Matplotlib figure to an interactive HTML with mpld3
-    interactive_chart = mpld3.fig_to_html(fig)
-    plt.close(fig)  # Close the figure to save memory
+    # Convert plot to PNG image
+    buf = BytesIO()
+    FigureCanvasAgg(fig).print_png(buf)
 
-    return render_template("bmi.html", chart=interactive_chart)
+    # Encode PNG image to base64 string
+    buf_str = "data:image/png;base64,"
+    buf_str += base64.b64encode(buf.getvalue()).decode('utf8')
+
+    return render_template("bmi.html", imgsrc=buf_str, name=name)
