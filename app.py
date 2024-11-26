@@ -2,6 +2,7 @@ from flask import Flask, url_for, render_template, request, redirect, session, f
 import pandas as pd
 import numpy as np
 import json, flask_login, datetime, requests, base64
+from datetime import timedelta
 from hashlib import sha256
 from models import *
 from io import BytesIO
@@ -9,6 +10,7 @@ import os
 from matplotlib.figure import Figure
 from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.backends.backend_agg import FigureCanvasAgg
+import matplotlib.pyplot as plt
 
 app = Flask(__name__)
 app.secret_key = "9773e89f69e69285cf11c10cbc44a37945f6abbc5d78d5e20c2b1b0f12d75ab7" # we need to change it
@@ -375,6 +377,7 @@ def bmi(name):
     # Encode PNG image to base64 string
     buf_str = "data:image/png;base64,"
     buf_str += base64.b64encode(buf.getvalue()).decode('utf8')
+<<<<<<< Updated upstream
             
     if bmi_stats_dict['avgbmi'] < 18.5:
         category = 'Underweight'
@@ -386,3 +389,82 @@ def bmi(name):
         category = 'Obese'
         
     return render_template("bmi.html", imgsrc=buf_str, name=name, stat_dict = bmi_stats_dict, category=category)
+=======
+
+    return render_template("bmi.html", imgsrc=buf_str, name=name)
+
+@app.get("/dashboard/radar/<name>")
+@flask_login.login_required
+def radar(name):
+    user = flask_login.current_user
+    user_data = pd.read_excel('static/user_workout_DB/Users.xlsx', sheet_name = ['workout_data_%s'%user.username])
+    user_data = user_data['workout_data_%s'%user.username]
+
+    # shared variables
+    workout_cat = ['Chest', 'Back', 'Arms', 'Core', 'Legs']
+    theta = np.linspace(0, 2*np.pi, len(workout_cat)+1, endpoint=True)
+
+    def reformatData(data_table):
+        new_list = [
+            data_table[data_table['Exercise_type'] == 'Chest']['weight_record'].sum(),
+            data_table[data_table['Exercise_type'] == 'Back']['weight_record'].sum(),
+            data_table[data_table['Exercise_type'] == 'Arms']['weight_record'].sum(),
+            data_table[data_table['Exercise_type'] == 'Core']['weight_record'].sum(),
+            data_table[data_table['Exercise_type'] == 'Legs']['weight_record'].sum(),
+            data_table[data_table['Exercise_type'] == 'Chest']['weight_record'].sum()
+        ]
+        
+        return new_list
+
+    def dataByTime(table, end, start):
+        table['Date'] = pd.to_datetime(table['Date'])
+        return table[(table['Date'] <= end) & (table['Date'] >= start)]
+    
+    today = pd.to_datetime(datetime.datetime.today())
+    this_week_data = dataByTime(user_data, today, today-timedelta(days=7))
+    last_two_weeks_data = dataByTime(user_data, today, today-timedelta(days=14))
+    last_four_weeks_data = dataByTime(user_data, today, today-timedelta(days=28))
+
+    thisWeek = reformatData(this_week_data)
+    lastTwoWeeks = reformatData(last_two_weeks_data)    
+    lastFourWeeks = reformatData(last_four_weeks_data)    
+    
+    # plot data
+    plt.figure(figsize=(6,6), facecolor='white')
+    fig, radar = plt.subplots(subplot_kw={'projection': 'polar'})
+    radar.set_facecolor('white')
+    
+    for spine in radar.spines.values():
+        spine.set_color('black')
+        spine.set_linewidth(1)   
+        
+    radar.xaxis.grid(color='black', linestyle='-', linewidth=2)
+    radar.yaxis.grid(color='black', linestyle='-', linewidth=2)
+    
+    # plot Last 4 Weeks
+    radar.plot(theta, lastFourWeeks, color='#D4EBF8', linewidth=4, label='Last 4 Weeks')
+    # plot Last 2 Weeks
+    radar.plot(theta, lastTwoWeeks, color='#608BC1', linewidth=4, label='Last 2 Weeks')
+    # plot This Week
+    radar.plot(theta, thisWeek, color='#0A3981', linewidth=4, label='This Week')
+
+    # adjust ticks
+    radar.set_xticks(theta[:-1])
+    radar.set_xticklabels(workout_cat, color='black')
+    
+    # include legend
+    plt.legend(loc='upper right', bbox_to_anchor=(1.2, 1.2))
+
+    fig.tight_layout()
+
+    # Convert plot to PNG image
+    buf = BytesIO()
+    FigureCanvasAgg(fig).print_png(buf)
+
+    # Encode PNG image to base64 string
+    buf_str = "data:image/png;base64,"
+    buf_str += base64.b64encode(buf.getvalue()).decode('utf8')
+
+    # Return the image and title in the template
+    return render_template("bmi.html", imgsrc=buf_str, name=name)
+>>>>>>> Stashed changes
