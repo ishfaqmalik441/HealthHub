@@ -1,71 +1,3 @@
-# import pandas as pd
-# import matplotlib.pyplot as plt
-# import calendar
-# import os
-# from matplotlib.widgets import Button
-
-# class CalendarVisualizer:
-#     def __init__(self, data_path, username):
-#         # Dynamically set the sheet name based on the username
-#         sheet_name = f'workout_data_{username}'
-#         self.df = pd.read_excel(data_path, sheet_name=sheet_name)
-#         self.df['Date'] = pd.to_datetime(self.df['Date'])
-#         self.df['Workout(Y/N)'] = self.df['Workout(Y/N)'].map({'Y': True, 'N': False})
-
-#         # Start with the earliest date in the dataset
-#         self.current_date = self.df['Date'].min()
-#         self.fig, self.ax = plt.subplots(figsize=(10, 6))
-#         self.plot_calendar(self.current_date.year, self.current_date.month)
-
-#         # Navigation buttons
-#         axprev = plt.axes([0.7, 0.01, 0.1, 0.05])
-#         axnext = plt.axes([0.81, 0.01, 0.1, 0.05])
-#         self.bnext = Button(axnext, 'Next')
-#         self.bnext.on_clicked(self.next_month)
-#         self.bprev = Button(axprev, 'Prev')
-#         self.bprev.on_clicked(self.prev_month)
-#         plt.show()
-
-#     def plot_calendar(self, year, month):
-#         self.ax.clear()
-#         self.ax.set_xlim(-0.5, 6.5)
-#         self.ax.set_ylim(0, 5)
-#         self.ax.invert_yaxis()
-#         self.ax.axis('off')
-
-#         days_in_month = calendar.monthrange(year, month)[1]
-#         day_of_week, _ = calendar.monthrange(year, month)
-
-#         for day in range(1, days_in_month + 1):
-#             x = (day_of_week + day - 1) % 7
-#             y = (day_of_week + day - 1) // 7
-#             date = pd.Timestamp(year, month, day)
-#             workout_day = not self.df[(self.df['Date'] == date) & (self.df['Workout(Y/N)'])].empty
-
-#             if workout_day:
-#                 self.ax.plot(x, y, 'go', markersize=10)
-#                 self.ax.annotate(day, (x, y), textcoords="offset points", xytext=(0,10), ha='center', color='green')
-#             else:
-#                 self.ax.plot(x, y, 'o', markersize=10, color='grey')
-
-#         self.ax.set_title(f'{calendar.month_name[month]} {year}', fontsize=16)
-
-#     def next_month(self, event):
-#         self.current_date = (self.current_date + pd.DateOffset(months=1)).replace(day=1)
-#         self.plot_calendar(self.current_date.year, self.current_date.month)
-#         plt.draw()
-
-#     def prev_month(self, event):
-#         self.current_date = (self.current_date - pd.DateOffset(months=1)).replace(day=1)
-#         self.plot_calendar(self.current_date.year, self.current_date.month)
-#         plt.draw()
-
-# def main():
-#     vis = CalendarVisualizer(r'static\user_workout_DB\Users.xlsx', 'mahad123')
-
-# if __name__ == '__main__':
-#     main()
-
 import pandas as pd
 import matplotlib.pyplot as plt
 import calendar
@@ -80,21 +12,29 @@ class CalendarVisualizer:
     def __init__(self, data_path, username):
         self.data_path = data_path
         self.username = username
-        self.sheet_name = f'workout_data_{username}'
+        self.sheet_name = f"workout_data_{username}"
 
         # Load user data
         try:
             self.df = pd.read_excel(data_path, sheet_name=self.sheet_name)
-            self.df['Date'] = pd.to_datetime(self.df['Date'], errors='coerce')  # Handle invalid dates
-            self.df['Workout(Y/N)'] = self.df['Workout(Y/N)'].map({'Y': True, 'N': False})
-            self.df.dropna(subset=['Date'], inplace=True)  # Drop rows with invalid or missing dates
+            self.df["Date"] = pd.to_datetime(
+                self.df["Date"], errors="coerce"
+            )  # Handle invalid dates
+            self.df["Workout(Y/N)"] = self.df["Workout(Y/N)"].map(
+                {"Y": True, "N": False}
+            )
+            self.df.dropna(
+                subset=["Date"], inplace=True
+            )  # Drop rows with invalid or missing dates
         except Exception as e:
             # If the sheet doesn't exist or there is an error, initialize an empty DataFrame
             print(f"Error loading data for {username}: {e}")
-            self.df = pd.DataFrame(columns=['Date', 'Workout(Y/N)'])
+            self.df = pd.DataFrame(columns=["Date", "Workout(Y/N)"])
 
         # Set the current date to the earliest date in the dataset, or today if no data exists
-        self.current_date = self.df['Date'].min() if not self.df.empty else pd.Timestamp.today()
+        self.current_date = (
+            self.df["Date"].min() if not self.df.empty else pd.Timestamp.today()
+        )
 
         # Initialize the figure and plot the current calendar
         self.fig, self.ax = plt.subplots(figsize=(10, 6))
@@ -105,7 +45,7 @@ class CalendarVisualizer:
         self.ax.set_xlim(-0.5, 6.5)  # Set x-axis limits for the days of the week
         self.ax.set_ylim(0, 5)  # Set y-axis limits for the weeks
         self.ax.invert_yaxis()  # Invert y-axis to display weeks from top to bottom
-        self.ax.axis('off')  # Hide axes
+        self.ax.axis("off")  # Hide axes
 
         # Get the number of days in the month and the starting day of the week
         days_in_month = calendar.monthrange(year, month)[1]
@@ -114,29 +54,49 @@ class CalendarVisualizer:
         # Loop through all days in the month
         for day in range(1, days_in_month + 1):
             x = (day_of_week + day - 1) % 7  # Calculate x-coordinate (day of the week)
-            y = (day_of_week + day - 1) // 7  # Calculate y-coordinate (week of the month)
+            y = (
+                day_of_week + day - 1
+            ) // 7  # Calculate y-coordinate (week of the month)
             date = pd.Timestamp(year, month, day)
 
             # Check if the day is a workout day
-            workout_day = not self.df[(self.df['Date'] == date) & (self.df['Workout(Y/N)'])].empty
+            workout_day = not self.df[
+                (self.df["Date"] == date) & (self.df["Workout(Y/N)"])
+            ].empty
 
             if workout_day:
                 # Plot workout days in green
-                self.ax.plot(x, y, 'go', markersize=12, zorder=5)
-                self.ax.annotate(day, (x, y), textcoords="offset points", xytext=(0, 10),
-                                 ha='center', color='green', fontsize=10, zorder=10)
+                self.ax.plot(x, y, "go", markersize=12, zorder=5)
+                self.ax.annotate(
+                    day,
+                    (x, y),
+                    textcoords="offset points",
+                    xytext=(0, 10),
+                    ha="center",
+                    color="green",
+                    fontsize=10,
+                    zorder=10,
+                )
             else:
                 # Plot non-workout days in grey
-                self.ax.plot(x, y, 'o', markersize=12, color='lightgrey', zorder=5)
-                self.ax.annotate(day, (x, y), textcoords="offset points", xytext=(0, 10),
-                                 ha='center', color='black', fontsize=10, zorder=10)
+                self.ax.plot(x, y, "o", markersize=12, color="lightgrey", zorder=5)
+                self.ax.annotate(
+                    day,
+                    (x, y),
+                    textcoords="offset points",
+                    xytext=(0, 10),
+                    ha="center",
+                    color="black",
+                    fontsize=10,
+                    zorder=10,
+                )
 
         # Set the title of the calendar
-        self.ax.set_title(f'{calendar.month_name[month]} {year}', fontsize=16, pad=20)
+        self.ax.set_title(f"{calendar.month_name[month]} {year}", fontsize=16, pad=20)
 
     def save_fig(self):
         # Save the current figure as an image
-        image_path = f'static/img/calendar_{self.username}.png'
+        image_path = f"static/img/calendar_{self.username}.png"
         self.fig.savefig(image_path)
         plt.close(self.fig)  # Close the figure after saving to free up memory
         return image_path
