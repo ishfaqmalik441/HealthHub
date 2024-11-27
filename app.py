@@ -11,6 +11,7 @@ from matplotlib.figure import Figure
 from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 import matplotlib.pyplot as plt
+import openpyxl
 
 app = Flask(__name__)
 app.secret_key = "9773e89f69e69285cf11c10cbc44a37945f6abbc5d78d5e20c2b1b0f12d75ab7" # we need to change it
@@ -175,6 +176,15 @@ def user_edit(name):
         return render_template('user_profile.html', editPWD="Yes", name=user.username, msg=msg)
     elif "delAC" in request.form:
         user_json = pd.read_json(USER_CREDENTIALS)
+        file_path = "static/user_workout_DB/Users.xlsx"
+        file = openpyxl.load_workbook(file_path)
+        all_sheet = file.sheetnames
+        user_sheet_name = f"workout_data_{user.username}"
+        if user_sheet_name in all_sheet:
+            sheet_to_remove = file[user_sheet_name]
+            file.remove(sheet_to_remove)
+            file.save("static/user_workout_DB/Users.xlsx")
+
         user_json.drop(user.id, axis=1, inplace=True)
         user_json.to_json(USER_CREDENTIALS)
         flask_login.logout_user()  # Log the user out
@@ -462,4 +472,4 @@ def radar(name):
     buf_str += base64.b64encode(buf.getvalue()).decode('utf8')
 
     # Return the image and title in the template
-    return render_template("bmi.html", imgsrc=buf_str, name=name)
+    return render_template("radar.html", imgsrc=buf_str, name=name)
