@@ -379,8 +379,8 @@ def radar(name):
     lastFourWeeks = reformatData(last_four_weeks_data)    
     
     # plot data
-    plt.figure(figsize=(6,6), facecolor='white')
-    fig, radar = plt.subplots(subplot_kw={'projection': 'polar'})
+    fig = Figure(figsize=[11, 6], facecolor='white')
+    radar = fig.subplots(subplot_kw={'projection': 'polar'})
     radar.set_facecolor('white')
     
     for spine in radar.spines.values():
@@ -402,7 +402,7 @@ def radar(name):
     radar.set_xticklabels(workout_cat, color='black')
     
     # include legend
-    plt.legend(loc='upper right', bbox_to_anchor=(1.2, 1.2))
+    radar.legend(loc='upper right', bbox_to_anchor=(1.2, 1.2))
 
     fig.tight_layout()
 
