@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workout Calendar</title>
+    <style>
+        /* General Reset */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #000; /* Dark background */
+            color: white; /* Text color */
+            text-align: center;
+        }
+
+        h1, h2, h3 {
+            margin: 10px 0;
+        }
+
+        /* Month Title */
+        .month-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: white;
+            margin-top: 20px;
+        }
+
+        .year {
+            font-size: 1.5rem;
+            font-weight: 300;
+            color: gray;
+        }
+
+        .calendar-container {
+            margin: 20px auto;
+            max-width: 600px;
+        }
+
+        /* Days and Calendar Styling */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr); /* 7 columns for days */
+            gap: 15px;
+            justify-items: center;
+            margin-top: 20px;
+        }
+
+        .day {
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+            border-radius: 50%;
+            font-size: 1rem;
+            color: gray;
+            background-color: transparent;
+        }
+
+        .day.workout {
+            background-color: #4CAF50; /* Green for workout days */
+            color: white;
+        }
+
+        .day:hover {
+            background-color: #45a049; /* Slightly darker green on hover */
+            cursor: pointer;
+        }
+
+        /* Navigation Arrows */
+        .nav-arrows {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .arrow {
+            font-size: 2rem;
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .arrow:hover {
+            color: #4CAF50; /* Green on hover */
+        }
+
+        /* Stats Section */
+        .stats-container {
+            margin: 20px 0;
+            padding: 20px;
+            border-top: 1px solid gray;
+        }
+
+        .stat {
+            font-size: 1.2rem;
+            color: white;
+            margin: 10px 0;
+        }
+
+        .stat-value {
+            font-weight: bold;
+            color: #4CAF50; /* Green for highlights */
+        }
+
+        /* Fire Container for Animation and Streak */
+        .fire-container {
+            display: flex;
+            justify-content: center; /* Center horizontally */
+            align-items: center; /* Align fire and streak text vertically */
+            gap: 10px; /* Space between fire and text */
+            margin-top: 20px; /* Add some spacing above the container */
+        }
+
+        /* Fire Icon Styling */
+        .fire-icon {
+            position: relative;
+            width: 30px;
+            height: 50px;
+        }
+
+        /* Flames */
+        .fire-icon .flame {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 50%;
+            animation: twirl-flicker 2.5s infinite ease-in-out; /* Slower and more dynamic animation */
+        }
+
+        .fire-icon .flame:nth-child(1) {
+            width: 30px;
+            height: 50px;
+            background: rgba(255, 69, 0, 0.8); /* Orange-red */
+            filter: blur(4px); /* Slight blur for outer flame */
+            animation-delay: 0s;
+        }
+
+        .fire-icon .flame:nth-child(2) {
+            width: 20px;
+            height: 35px;
+            background: rgba(255, 140, 0, 0.8); /* Bright orange */
+            filter: blur(3px);
+            animation-delay: 0.3s;
+        }
+
+        .fire-icon .flame:nth-child(3) {
+            width: 10px;
+            height: 20px;
+            background: rgba(255, 215, 0, 0.8); /* Yellow */
+            filter: blur(1px);
+            animation-delay: 0.6s;
+        }
+
+        /* Twirling Flickering Animation */
+        @keyframes twirl-flicker {
+            0% {
+                transform: translateX(-50%) scale(1) rotate(0deg) skew(0deg, 0deg);
+                opacity: 1;
+            }
+            20% {
+                transform: translateX(-48%) scale(1.1) rotate(-3deg) skew(3deg, -2deg);
+                opacity: 0.9;
+            }
+            40% {
+                transform: translateX(-52%) scale(1.2) rotate(2deg) skew(-2deg, 3deg);
+                opacity: 0.8;
+            }
+            60% {
+                transform: translateX(-50%) scale(1.3) rotate(-2deg) skew(2deg, -3deg);
+                opacity: 0.7;
+            }
+            80% {
+                transform: translateX(-49%) scale(1.15) rotate(3deg) skew(-3deg, 2deg);
+                opacity: 0.85;
+            }
+            100% {
+                transform: translateX(-50%) scale(1) rotate(0deg) skew(0deg, 0deg);
+                opacity: 1;
+            }
+        }
+
+        /* Streak Text Styling */
+        .streak-text {
+            font-size: 1.2rem;
+            color: white;
+            font-weight: bold;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Greeting -->
+    <h1>Hello {{ name }}!</h1>
+    <h2>Your Workout Calendar</h2>
+
+    <!-- Month Title -->
+    <div class="month-title">
+        {{ current_month }}
+        <span class="year">{{ current_year }}</span>
+    </div>
+
+    <!-- Fire Icon for Streak (Only for Current Month) -->
+    {% if is_current_month %}
+    <div class="fire-container">
+        <div class="fire-icon">
+            <div class="flame"></div>
+            <div class="flame"></div>
+            <div class="flame"></div>
+        </div>
+        <h3 class="streak-text">{{ longest_streak }} Weeks Streak</h3>
+    </div>
+    {% endif %}
+
+    <!-- Calendar -->
+    <div class="calendar-container">
+        <div class="calendar-grid">
+            {% for day in calendar_days %}
+                <div class="day {% if day.workout %}workout{% endif %}">
+                    {{ day.day }}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Navigation Arrows -->
+    <div class="nav-arrows">
+        <a class="arrow" href="{{ url_for('prev_month', name=name) }}">&larr;</a>
+        <a class="arrow" href="{{ url_for('next_month', name=name) }}">&rarr;</a>
+    </div>
+
+    <!-- Workout Stats -->
+    <div class="stats-container">
+        <div class="stat">
+            Total Workouts This Month: <span class="stat-value">{{ total_workouts }}</span>
+        </div>
+        <div class="stat">
+            Longest Workout Streak: <span class="stat-value">{{ longest_streak }}</span>
+        </div>
+    </div>
+</body>
+</html>
