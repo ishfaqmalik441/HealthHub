@@ -1,24 +1,28 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="content d-flex justify-content-center align-items-center w-100 text-center vh-100" style="margin-top: -50px;">
-  <main class="px-3">
-    {% if msg == 'logged in' %}
-      <div class="alert alert-success alert-dismissible fade show position-fixed start-50 translate-middle-x w-50 text-center" role="alert" style="bottom: 20%; z-index: 1050;">
-        You are logged in!
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-      </div>
-    {% elif msg == 'deleted' %}
-      <div class="alert alert-success alert-dismissible fade show position-fixed start-50 translate-middle-x w-50 text-center" role="alert" style="bottom: 20%; z-index: 1050;">
-        Your account has been successfully deleted!
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-      </div>
-    {% endif %}
-    <h1>Welcome to HealthHub.</h1>
-    <p class="lead">Track your fitness journey, log workouts and meals, and receive personalized insights to reach your health goals!</p>
-    <p class="lead">
-      <a href="#" class="btn btn-lg btn-light fw-bold border-white bg-dark text-white">Learn more</a>
-    </p>
-  </main>
+<div class="container-fluid d-flex flex-column align-items-center justify-content-center" style="min-height: calc(100vh - 80px); padding-top: 10px;">
+    <!-- Dropdown Menu aligned to the right -->
+    
+
+    <!-- Main content section -->
+    <main class="text-center bg-light p-4 rounded shadow-lg" style="max-width: 800px; font-family: 'Roboto', sans-serif;">
+        <!-- Alerts -->
+        {% if msg == 'logged in' %}
+        <div class="alert alert-success alert-dismissible fade show position-fixed start-50 translate-middle-x w-50 text-center" role="alert" style="bottom: 20%; z-index: 1050;">
+            You are logged in!
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% elif msg == 'deleted' %}
+        <div class="alert alert-success alert-dismissible fade show position-fixed start-50 translate-middle-x w-50 text-center" role="alert" style="bottom: 20%; z-index: 1050;">
+            Your account has been successfully deleted!
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endif %}
+
+        <h1 class="mb-4" style="color: #000000;">Welcome to HealthHub</h1>
+        <p class="lead" style="color: #3f4347;">Track your fitness journey, log workouts and meals, and receive personalized insights to reach your health goals!</p>
+        
+    </main>
 </div>
 {% endblock %}

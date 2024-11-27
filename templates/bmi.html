@@ -3,75 +3,50 @@
 {% block title %} 
 BMI Analysis
 {% endblock %}
-{% block content %}
-<div class="container-fluid">
-    <div class="row vh-100">
-        <!-- Main content section with full-width layout -->
-        <main class="col-12 px-md-4">
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                <h1 class="h2">Body Mass Index (BMI) Analysis for {{name}}</h1>
-            </div>
-            <!-- BMI Visualization section -->
-            <div class="border-bottom">
-                <h4>A visualization of the changes in your Body Mass Index (BMI) in the past {{stat_dict.DayCount}} days is given below:</h4>
-                <div style="text-align: center;">
-                    <img src="{{ imgsrc }}" alt="bmi_throughout">
-                </div>
-            </div>
-            <!-- BMI Statistics section: -->
-            <br>
-            <div class="mt-1 border-bottom">
-                <div>
-                    <h4>Below are some statistics regarding your BMI:</h4>
-                    <ul>
-                        <li>
-                            Your highest BMI of {{stat_dict.highestbmi.value}} was recorded on {{stat_dict.highestbmi.date}}
-                        </li>
-                        <li>
-                            Your lowest BMI of {{stat_dict.lowestbmi.value}} was recorded on {{stat_dict.lowestbmi.date}}
-                        </li>
-                        <li>
-                            In the past {{stat_dict.DayCount}} days your BMI was in the healthy range for {{stat_dict.healthyDays}} days
-                        </li>
-                        <li>
-                            Your average BMI for the period was {{stat_dict.avgbmi}}
-                        </li>
-                        <li>
-                            The standard deviation of your BMI for the period was {{stat_dict.stdbmi}}
-                        </li>
-                    </ul>
-                </div>
-                <div>
-                    <h3>The overall analysis of the data shows that you are in the {{category}} category</h3>
-                </div>
-            </div>
-            <!-- BMI Calculator: -->
-            <br>
-            <!-- <div class="mt-1 border-bottom">
-                <h4>Calculate your BMI today!</h4>
-                <div style="width: 400px; margin: 50px auto; padding: 20px; background-color: white; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
-                    <h1 style="text-align: center; color: black;">BMI Calculator</h1>
-                    
-                    <form action="/dashboard/bmi/{{name}}" method="post">
-                        <label for="weight" style="display: block; margin-bottom: 10px;">Weight (kg)</label>
-                        <input type="number" id="weight" name="weight" step="0.1" required style="width: 100%; height: 40px; margin-bottom: 20px; padding: 10px; font-size: 16px;">
-            
-                        <label for="height" style="display: block; margin-bottom: 10px;">Height (m)</label>
-                        <input type="number" id="height" name="height" step="0.01" required style="width: 100%; height: 40px; margin-bottom: 20px; padding: 10px; font-size: 16px;">
-            
-                        <button type="submit" style="width: 100%; height: 40px; background-color: black; color: white; border: none; cursor: pointer; font-size: 16px;">
-                            Calculate BMI
-                        </button>
-                    </form>
 
-                    {% if bmi %}
-                        <div style="margin-top: 20px; text-align: center; font-weight: bold; font-size: 24px; color: #2ecc71;">
-                            Your BMI is {{ bmi }}{% if category %} ({{ category }}){% endif %}
-                        </div>
-                    {% endif %}
-                </div>
-            </div> -->
-        </main>
+{% block content %}
+<div class="container-fluid d-flex flex-column align-items-center justify-content-center" style="min-height: calc(100vh - 80px); padding-top: 80px;">
+    <!-- Dropdown Menu aligned to the right -->
+    <div class="dropdown position-absolute" style="top: 80px; left: 125px;">
+        <button class="btn btn-dark dropdown-toggle" type="button" id="menuDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            ☰ Menu
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="menuDropdown">
+            <li><a class="dropdown-item" href="/dashboard/bmi/{{ current_user.username }}">BMI</a></li>
+            <li><a class="dropdown-item" href="/dashboard/radar/{{ current_user.username }}">Radar</a></li>
+            <li><a class="dropdown-item" href="#">DataVis2</a></li>
+            <li><a class="dropdown-item" href="#">DataVis</a></li>
+        </ul>
     </div>
+
+    <!-- Main content section -->
+    <main class="text-center bg-light p-4 rounded shadow-lg" style="max-width: 800px; font-family: 'Roboto', sans-serif;">
+        <h1 class="mb-4" style="color: #000000;">Body Mass Index (BMI) Analysis for <span style="color: #007bff;">{{ name }}</span></h1>
+
+        <!-- BMI Visualization section -->
+        <div class="border-bottom mb-4">
+            <h4 style="color: #3f4347;">A visualization of the changes in your Body Mass Index (BMI) in the past <strong>{{ stat_dict.DayCount }}</strong> days is given below:</h4>
+            <div style="text-align: center;" class="my-3">
+                <img src="{{ imgsrc }}" alt="bmi_throughout" class="img-fluid rounded" style="border: 1px solid #dee2e6;">
+            </div>
+        </div>
+
+        <!-- BMI Statistics section -->
+        <div class="mb-4">
+            <h4 style="color: #3f4347;">Below are some statistics regarding your BMI:</h4>
+            <ul style="text-align: left; margin: auto; color: #495057;">
+                <li>Your highest BMI of <strong>{{ stat_dict.highestbmi.value }}</strong> was recorded on <strong>{{ stat_dict.highestbmi.date }}</strong>.</li>
+                <li>Your lowest BMI of <strong>{{ stat_dict.lowestbmi.value }}</strong> was recorded on <strong>{{ stat_dict.lowestbmi.date }}</strong>.</li>
+                <li>In the past <strong>{{ stat_dict.DayCount }}</strong> days your BMI was in the healthy range for <strong>{{ stat_dict.healthyDays }}</strong> days.</li>
+                <li>Your average BMI for the period was <strong>{{ stat_dict.avgbmi }}</strong>.</li>
+                <li>The standard deviation of your BMI for the period was <strong>{{ stat_dict.stdbmi }}</strong>.</li>
+            </ul>
+        </div>
+
+        <!-- Overall analysis -->
+        <div class="mt-3">
+            <h3 style="color: #009b77;">The overall analysis of the data shows that you are in the <strong>{{ category }}</strong> category.</h3>
+        </div>
+    </main>
 </div>
 {% endblock %}

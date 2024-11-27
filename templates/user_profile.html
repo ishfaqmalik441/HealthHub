@@ -1,41 +1,38 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
-<div class="d-flex justify-content-center align-items-center h-75 vh-100" style="margin-top: -50px;">
-    <div class="container text-center">
-        <h3>Welcome, {{name}}!</h3>
-        <br><br>
-        <form method="post">
-            <div class="row justify-content-center">
-                <div class="col-8 text-center">
-                    <table class="table mx-auto w-auto">
+<div class="container my-5 py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 text-center">
+            <h3 class="mb-4" style="color: #333;">Welcome, {{name}}!</h3>
+            <form method="post">
+                <!-- Profile Info Table -->
+                <div class="table-responsive mb-4">
+                    <table class="table table-bordered table-hover">
                         <tbody>
                             <tr>
-                                <th>Username</th>
-                                <td>
-                                    <input type="text" class="form-control-plaintext text-center"
+                                <th class="text-center">Username</th>
+                                <td class="text-center">
+                                    <input type="text" class="form-control-plaintext text-center" 
                                         placeholder="{{current_user.username}}" readonly>
                                 </td>
                             </tr>
                             <tr>
-                                <th>Password</th>
+                                <th class="text-center">Password</th>
                                 {% if editPWD == 'No' %}
-                                <td>
+                                <td class="text-center">
                                     <input type="password" class="form-control-plaintext text-center"
                                         placeholder="******" readonly>
                                 </td>
                                 {% else %}
-                                <td>
+                                <td class="text-center">
                                     <input type="password" class="form-control text-center"
-                                        name="password"
-                                        placeholder="******">
+                                        name="password" placeholder="******">
                                 </td>
-                                <td>
-                                    <button type="submit" id="confirmPWD"
-                                        name="confirmPWD"
-                                        class="btn btn-success">
-                                        <i class="bi bi-check-circle"></i>
+                                <td class="text-center">
+                                    <button type="submit" id="savePWD" 
+                                        name="savePWD" class="btn btn-success">
+                                        <i class="bi bi-save"></i> Save Password
                                     </button>
                                 </td>
                                 {% endif %}
@@ -43,17 +40,19 @@
                         </tbody>
                     </table>
                 </div>
-            </div>
-            <div class="mt-4">
-                <button type="submit" id="editPWD" 
-                    class="btn btn-lg btn-light fw-bold border-white bg-dark text-white" 
-                    name="editPWD">Edit Password</button>
-                <button type="submit" id="delAC"
-                    class="btn btn-lg btn-light fw-bold border-white bg-dark text-white" 
-                    name="delAC">Destroy Account</button>
-            </div>
-        </form>
+
+                <!-- Action Buttons -->
+                <div class="d-flex justify-content-center gap-3">
+                    <button type="submit" id="editPWD" 
+                        class="btn btn-lg btn-outline-dark fw-bold" 
+                        name="editPWD">Edit Password</button>
+
+                    <button type="submit" id="delAC" 
+                        class="btn btn-lg btn-outline-danger fw-bold" 
+                        name="delAC">Delete Account</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
-
 {% endblock %}
