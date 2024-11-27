@@ -303,9 +303,46 @@ def calculate_bmi(weight, height_cm):
     height_m = height_cm / 100  # Convert height to meters
     return round(weight / (height_m ** 2), 1)  # Calculate BMI and round to 2 decimal places
 
+def calculate_weight(bmi, height):
+    height_m = height / 100  # Convert height to meters
+    weight = bmi * (height_m ** 2)
+    
+    return weight
+
 def create_custom_cmap():
     return LinearSegmentedColormap.from_list("", ["#3498db", "#f1c40f", "#e74c3c"])
 
+@app.get("/dashboard/bmi-calculator/<name>")
+@flask_login.login_required
+def bmiCalc(name):
+    return render_template("bmi-calculator.html", name=name)
+
+@app.post("/dashboard/bmi-calculator/<name>")
+@flask_login.login_required
+def bmiCalculator(name):
+    weight = float(request.form['weight'])
+    height = float(request.form['height'])
+    bmi = calculate_bmi(weight, height)
+    min_weight = round(calculate_weight(18.5, height), 2)
+    max_weight = round(calculate_weight(24.9, height), 2)
+    foodNutrition = []
+
+    if bmi < 18.5:
+        category = 'Underweight'
+        foodNutrition = ["Nuts and seeds (e.g. almonds, cashews, pumpkin seeds)", "Full-fat dairy products (e.g. whole milk, full-fat yogurt, cheese)",
+                        "Fatty fish (e.g. salmon, tuna)", "Lean meats (e.g. chicken, beef, pork)", "Eggs", "Fruits (e.g bananas, mangoes)", "Vegetables (e.g corn, sweet potatoes)"]
+    elif bmi < 25:
+        category = 'Normal'
+        foodNutrition = ["Vegetables (e.g spinach, kale, broccoli, cauliflower)", "Lean protiens (e.g chicken, fish)", "Legumes (e.g lentils, beans)"
+                        , "Whole grains (e.g quinoa, brown rice)", "Nuts and seeds"]
+    elif bmi < 30:
+        category = 'Overweight'
+        foodNutrition = ['Vegetables (leafy greens, broccoli, bell peppers)', "Fruits (apples, berries, citrus fruits)", "Lean proteins (chicken, turkey, fish)", "Whole grains (brown rice, quinoa, whole wheat)"]
+    else:
+        category = 'Obese'
+        foodNutrition = ['Vegetables (leafy greens, broccoli, bell peppers)', "Fruits (apples, berries, citrus fruits)", "Lean proteins (chicken, turkey, fish)", "Whole grains (brown rice, quinoa, whole wheat)"]
+    return render_template('bmi-calculator.html', name = name, bmi = bmi, height = height, category = category, min_weight = min_weight, max_weight = max_weight, nutrition = foodNutrition)
+    
 # Function for analysing and processing the user data, and providing a visualization of the User's BMI
 @app.get("/dashboard/bmi/<name>")
 @flask_login.login_required
@@ -398,6 +435,8 @@ def bmi(name):
         category = 'Obese'
         
     return render_template("bmi.html", imgsrc=buf_str, name=name, stat_dict = bmi_stats_dict, category=category)
+
+
 
 @app.get("/dashboard/radar/<name>")
 @flask_login.login_required
