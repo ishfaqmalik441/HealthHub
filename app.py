@@ -3,16 +3,21 @@ import pandas as pd
 import numpy as np
 import json, flask_login, datetime, requests, base64
 from datetime import timedelta
+from datetime import datetime
 from hashlib import sha256
 from models import *
 from io import BytesIO
+import calendar
 import os
 from matplotlib.figure import Figure
 from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 import matplotlib.pyplot as plt
 import openpyxl
+from calendar_visualizer import CalendarVisualizer
 
+
+user_calendars = {}
 app = Flask(__name__)
 app.secret_key = "9773e89f69e69285cf11c10cbc44a37945f6abbc5d78d5e20c2b1b0f12d75ab7" # we need to change it
 
@@ -29,10 +34,10 @@ login_manager.init_app(app)
 global USER_CREDENTIALS, USER_PREDICTIONS
 USER_CREDENTIALS = 'static/users/credentials.json'
 
-# API URL
-TODAY = datetime.date.today()
-ONEYEARAGO = TODAY - datetime.timedelta(days=365)
-URL_BASE = "https://api.polygon.io/v2/aggs/ticker/MYTICKER/range/1/day/%s/%s"%(ONEYEARAGO, TODAY)
+# # API URL
+# TODAY = datetime.date.today()  
+# ONEYEARAGO = TODAY - datetime.timedelta(days=365)
+# URL_BASE = "https://api.polygon.io/v2/aggs/ticker/MYTICKER/range/1/day/%s/%s"%(ONEYEARAGO, TODAY)
 
 #it must be here for maintain user session after logged in
 @login_manager.user_loader
@@ -186,21 +191,31 @@ def test():
 # Function to save the uploaded file and possibly for data processing
 @app.post('/upload/<name>')
 def upload_file(name):
+    global user_calendars  # Reference the global dictionary
+
     file = request.files['file']
 
     if file.filename == '':
-        return redirect(url_for('dashboard', msg = 'No File Uploaded', name = name))
+        return redirect(url_for('dashboard', msg='No File Uploaded', name=name))
     if file:
+        # Determine file type and read data
         if file.filename.endswith('.csv'):
             data = pd.read_csv(file)
         elif file.filename.endswith('.xls') or file.filename.endswith('.xlsx'):
             data = pd.read_excel(file)
         else:
-            return redirect(url_for('dashboard', msg = 'File Type not supported', name = name))
-        with pd.ExcelWriter("static/user_workout_DB/Users.xlsx", mode='a', if_sheet_exists='replace') as writer:
+            return redirect(url_for('dashboard', msg='File Type not supported', name=name))
+        
+        # Save the file to the user's specific sheet in the Users.xlsx file
+        file_path = "static/user_workout_DB/Users.xlsx"
+        with pd.ExcelWriter(file_path, mode='a', if_sheet_exists='replace') as writer:
             data.to_excel(writer, sheet_name=f"workout_data_{name}", index=False)
-        # data.to_excel('static/user_workout_DB/Users.xlsx', sheet_name = "workout_data_%s"%name, index = False)
-        return redirect(url_for('dashboard', msg = 'File Uploaded', name = name))
+        
+        # Initialize CalendarVisualizer for this user
+        user_calendars[name] = CalendarVisualizer(file_path, name)
+
+        return redirect(url_for('dashboard', msg='File Uploaded', name=name))
+
 
 # Function for calculating the user BMI
 def calculate_bmi(weight, height_cm):
@@ -416,3 +431,120 @@ def radar(name):
 
     # Return the image and title in the template
     return render_template("radar.html", imgsrc=buf_str, name=name)
+
+def calculate_longest_streak(workout_days):
+    if not workout_days:
+        return 0
+
+    workout_days = sorted(workout_days)
+    longest_streak = 1
+    current_streak = 1
+
+    for i in range(1, len(workout_days)):
+        if workout_days[i] == workout_days[i - 1] + 1:
+            current_streak += 1
+            longest_streak = max(longest_streak, current_streak)
+        else:
+            current_streak = 1
+
+    return longest_streak
+
+@app.route('/dashboard/calendar/<name>', methods=['GET'])
+@flask_login.login_required
+def display_calendar(name):
+    global user_calendars  # Reference the global dictionary
+
+    # Check if the user has a CalendarVisualizer instance
+    if name not in user_calendars:
+        return redirect(url_for('dashboard', msg='Please upload your workout data first.', name=name))
+
+    # Get the user's CalendarVisualizer instance
+    calendar_vis = user_calendars[name]
+
+    # Get the current year and month
+    year = calendar_vis.current_date.year
+    month = calendar_vis.current_date.month
+
+    # Get today's date for comparison
+    now = datetime.now()
+    is_current_month = (month == now.month and year == now.year)  # Check if displayed month is the current month
+
+    # Debug: Confirm calendar and filtering
+    print(calendar)
+    print(type(calendar))
+    print(f"Displaying calendar for {month}/{year}, Current month/year: {now.month}/{now.year}")
+    print("is_current_month:", is_current_month)
+
+    # Filter workout data for the current month
+    current_month_data = calendar_vis.df[
+        (calendar_vis.df['Date'].dt.year == year) & (calendar_vis.df['Date'].dt.month == month)
+    ]
+
+    print("Filtered data:", current_month_data)
+
+    # Handle possible issues with `Workout(Y/N)`
+    if 'Workout(Y/N)' not in current_month_data.columns:
+        return "Error: Workout(Y/N) column missing from data."
+
+    # Ensure Workout(Y/N) is boolean
+    current_month_data['Workout(Y/N)'] = current_month_data['Workout(Y/N)'].map({True: True, 1: True, 'Y': True, False: False, 0: False, 'N': False})
+
+    # Calculate total workouts in the current month
+    total_workouts = current_month_data['Workout(Y/N)'].sum()
+
+    # Calculate the longest consecutive streak
+    workout_days = current_month_data[current_month_data['Workout(Y/N)']]['Date'].dt.day.tolist()
+    print("Workout Days:", workout_days)
+
+    longest_streak = calculate_longest_streak(workout_days)
+
+    # Prepare calendar days data
+    days_in_month = calendar.monthrange(year, month)[1]  # Correct usage of `calendar.monthrange`
+    calendar_days = []
+    for day in range(1, days_in_month + 1):
+        is_workout = day in workout_days
+        calendar_days.append({'day': day, 'workout': is_workout})
+
+    # Render the calendar HTML page
+    return render_template(
+        'calendar.html',
+        name=name,
+        current_month=calendar.month_name[month],
+        current_year=year,
+        calendar_days=calendar_days,
+        total_workouts=total_workouts,
+        longest_streak=longest_streak,  # Keep it in days, not weeks
+        is_current_month=is_current_month  # Pass the variable to the template
+    )
+
+@app.route('/dashboard/calendar/<name>/next', methods=['GET'])
+@flask_login.login_required
+def next_month(name):
+    global user_calendars  # Reference the global dictionary
+
+    # Check if the user has a CalendarVisualizer instance
+    if name in user_calendars:
+        calendar_vis = user_calendars[name]
+        calendar_vis.next_month()
+        return redirect(url_for('display_calendar', name=name))
+
+    return redirect(url_for('dashboard', msg='Please upload your workout data first.', name=name))
+
+@app.route('/dashboard/calendar/<name>/prev', methods=['GET'])
+@flask_login.login_required
+def prev_month(name):
+    global user_calendars  # Reference the global dictionary
+
+    # Check if the user has a CalendarVisualizer instance
+    if name in user_calendars:
+        calendar_vis = user_calendars[name]
+        calendar_vis.prev_month()
+        return redirect(url_for('display_calendar', name=name))
+
+    return redirect(url_for('dashboard', msg='Please upload your workout data first.', name=name))
+
+
+
+
+if __name__ == '__main__':
+    app.run(debug=True)

@@ -7,7 +7,7 @@ Dashboard
 {% block content %}
 {% if msg == 'No File Uploaded' %}
 <div class="alert alert-danger alert-dismissible fade show position-fixed start-50 translate-middle-x w-50 text-center" role="alert" style="bottom: 20%; z-index: 1050;">
-    You did not upload any file! Please upload an excel or csv file
+    You did not upload any file! Please upload an Excel or CSV file.
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
 {% elif msg == 'File Uploaded' %}
@@ -44,9 +44,10 @@ Dashboard
             <!-- Section with icons, buttons, and descriptions -->
             <div class="mt-5">
                 <div class="row justify-content-center">
+                    <!-- BMI Tool -->
                     <div class="col-md-3 text-center mb-4">
                         <div class="border p-3 rounded shadow-sm" style="background-color: #f8f9fa;">
-                            <img src="https://www.tataaia.com/content/dam/tataaialifeinsurancecompanylimited/calculator/life-planning-tools/bmi-calculator/banner-image-bmi.png" alt="Icon 1" class="img-fluid mb-3">
+                            <img src="https://www.tataaia.com/content/dam/tataaialifeinsurancecompanylimited/calculator/life-planning-tools/bmi-calculator/banner-image-bmi.png" alt="BMI Icon" class="img-fluid mb-3">
                             <h4 style="color: #044488;">Body Mass Index (BMI) Analysis Tool</h4>
                             <p style="font-size: 15px; color: #495057;">This tool provides a comprehensive analysis of your body mass 
                             index (BMI) trends over time. You can visualize how 
@@ -56,28 +57,34 @@ Dashboard
                             <a href="/dashboard/bmi/{{ current_user.username }}" class="btn btn-primary">Analyse your BMI</a>
                         </div>
                     </div>
+
+                    <!-- Radar Tool -->
                     <div class="col-md-3 text-center mb-4">
                         <div class="border p-3 rounded shadow-sm" style="background-color: #f8f9fa;">
-                            <img src="https://via.placeholder.com/100" alt="Icon 2" class="img-fluid mb-3">
+                            <img src="https://via.placeholder.com/100" alt="Radar Icon" class="img-fluid mb-3">
                             <h5 style="color: #044488;">Radar</h5>
-                            <p style="color: #495057;">Radar displays the distribution of your workouts</p>
+                            <p style="color: #495057;">Radar displays the distribution of your workouts.</p>
                             <a href="/dashboard/radar/{{ current_user.username }}" class="btn btn-primary">Go to Radar</a>
                         </div>
                     </div>
+
+                    <!-- Diet Plan -->
                     <div class="col-md-3 text-center mb-4">
                         <div class="border p-3 rounded shadow-sm" style="background-color: #f8f9fa;">
-                            <img src="{{ url_for('static', filename='img/diet.png') }}" alt="Icon 3" class="img-fluid mb-3">
+                            <img src="{{ url_for('static', filename='img/diet.png') }}" alt="Diet Icon" class="img-fluid mb-3">
                             <h5 style="color: #044488;">Diet Plan</h5>
-                            <p style="color: #495057;">Description of 3</p>
+                            <p style="color: #495057;">Get a personalized diet plan tailored to your fitness goals.</p>
                             <a href="#" class="btn btn-primary">Get Your Plan</a>
                         </div>
                     </div>
+
+                    <!-- Workout Calendar -->
                     <div class="col-md-3 text-center mb-4">
                         <div class="border p-3 rounded shadow-sm" style="background-color: #f8f9fa;">
-                            <img src="https://via.placeholder.com/100" alt="Icon 4" class="img-fluid mb-3">
-                            <h5 style="color: #044488;">DataVis4</h5>
-                            <p style="color: #495057;">Description of 4</p>
-                            <a href="#" class="btn btn-primary">Go to DataVis4</a>
+                            <img src="{{ url_for('static', filename='img/workout_calendar.png') }}" alt="Workout Calendar" class="img-fluid mb-3" style="border-radius: 10px;">
+                            <h5 style="color: #044488;">Workout Calendar</h5>
+                            <p style="color: #495057;">View your workout schedule and track your progress on a monthly calendar.</p>
+                            <a href="/dashboard/calendar/{{ current_user.username }}" class="btn btn-primary">Go to Calendar</a>
                         </div>
                     </div>
                 </div>
