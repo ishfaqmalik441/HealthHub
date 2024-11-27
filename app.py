@@ -28,7 +28,6 @@ login_manager.init_app(app)
 # data files
 global USER_CREDENTIALS, USER_PREDICTIONS
 USER_CREDENTIALS = 'static/users/credentials.json'
-USER_PREDICTIONS = 'static/users/user_predict.json'
 
 # API URL
 TODAY = datetime.date.today()
@@ -40,71 +39,20 @@ URL_BASE = "https://api.polygon.io/v2/aggs/ticker/MYTICKER/range/1/day/%s/%s"%(O
 def load_user(userid):
     user_json = pd.read_json(USER_CREDENTIALS).get(userid)
     return User(user_json['username'],
-                user_json['password'])
+                user_json['password'],
+                user_json['email'])
 
 @app.get('/')
 def index():
     msg = request.args.get('msg')
     return render_template('index.html', msg=msg)
 
-@app.post('/')
-def search():
-    if 'clear' in request.form:
-        return redirect(url_for('index')) 
-        #for user to clean the search result, will only shown after a successful search, and it will redirect us to the page again
-    elif 'search' in request.form: 
-        #start to seach the data the user wants
-        ticker = request.form.get('ticker')
-        apikey = request.form.get('apikey')
-        url = URL_BASE.replace('MYTICKER', ticker)
-        r = requests.get(url, params={'apiKey': apikey})
-        print(r.url)
-        r_status = r.status_code
-        print(r_status)
-        # if search failed:
-        if r_status != 200:
-            return render_template('index.html', msg='failed') 
-            #will return failed msg to browser, {% if mag == 'failed' %}
-            
-        #if status == 200, extract the data
-        results = r.json()
-        results_price = results['results']
-        results_df = pd.DataFrame(results_price)
-        col_map = {'c': 'Closing Price', 'h': 'Highest Price', 'l': 'Lowest Price',
-                   'n': 'Num Trans', 'o': 'Openning Price', 'otc': 'OTC Stock', 't': 'Unix Time',
-                   'v': 'Volume', 'vw': 'Volume Weighted Price'
-                  }
-        results_df.rename(columns=col_map, inplace=True)
-        # add datetime based on unix time
-        print(results_df.head())
-        results_df['Date'] = pd.to_datetime(results_df['Unix Time'], unit='ms').dt.date
-        # save for now
-        results_df.to_csv('./static/uploads/%s.csv'%ticker, index=False)
-        # visualization
-
-        fig = Figure(figsize=[12, 5.5])
-        ax_arr = fig.subplots(ncols=2)
-        for i, col in enumerate(['Closing Price', 'Num Trans']):
-            ax = ax_arr[i]
-            ax.scatter(x=results_df['Date'], y=results_df[col])
-            ax.set_xlabel('Date')
-            ax.set_ylabel(col)
-        fig.tight_layout()
-
-        # Convert plot to PNG image
-        buf = BytesIO()
-        FigureCanvasAgg(fig).print_png(buf)
-         # Encode PNG image to base64 string
-        buf_str = "data:image/png;base64,"
-        buf_str += base64.b64encode(buf.getvalue()).decode('utf8')
-
-        return render_template('index.html', msg='success', imgsrc=buf_str)
-
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
+        email = request.form.get('email')
         password_hash = sha256(password.encode('utf-8')).hexdigest()
 
         # check if the user already exists
@@ -120,7 +68,7 @@ def signup():
             # x in existing_usernames(['x', 'y', 'z']) --> true, x is inside
             return render_template('signup.html', msg='username')
         # if not, go ahead and put it to the JSON (append)
-        user_series = pd.Series(dict(username=username, password=password_hash))
+        user_series = pd.Series(dict(username=username, password=password_hash, email=email))
         user_existing.loc[sha256(username.encode('utf-8')).hexdigest()] = user_series
         user_existing.to_json(USER_CREDENTIALS, orient='index')
         return redirect(url_for('login', msg='signup'))
@@ -151,7 +99,7 @@ def login():
             return render_template('login.html', msg="mismatch")
 
         # Login the user
-        user = User(user_json['username'], user_json['password'])
+        user = User(user_json['username'], user_json['password'], user_json['email'])
         flask_login.login_user(user)
         return redirect(url_for('dashboard', msg="logged in", name = flask_login.current_user.username))
 
@@ -163,8 +111,7 @@ def login():
 @app.get('/user/<name>')
 @flask_login.login_required
 def user(name):
-    return render_template('user_profile.html', edit='No', editPWD='No',
-                           name=flask_login.current_user.username)
+    return render_template('user_profile.html', edit='No',name=flask_login.current_user.username)
 
 @app.post('/user/<name>')
 @flask_login.login_required
@@ -172,8 +119,8 @@ def user_edit(name):
     user = flask_login.current_user
     msg = None  # Default message
 
-    if 'editPWD' in request.form:
-        return render_template('user_profile.html', editPWD="Yes", name=user.username, msg=msg)
+    if 'edit' in request.form:
+        return render_template('user_profile.html', edit="Yes", name=user.username, msg=msg)
     elif "delAC" in request.form:
         user_json = pd.read_json(USER_CREDENTIALS)
         file_path = "static/user_workout_DB/Users.xlsx"
@@ -192,71 +139,28 @@ def user_edit(name):
         return redirect(url_for('index', msg=msg))
     else:
         user_json = pd.read_json(USER_CREDENTIALS)
-        # Password update
         try:
-            new_password = request.form['password']
-            new_password = sha256(new_password.encode('utf-8')).hexdigest()
-            user_json.loc['password', user.id] = new_password
-            msg = "Password updated successfully!"
+            new_password = request.form.get('password', '').strip()
+            new_email = request.form.get('email', '').strip()
+
+            # Update password only if it's not empty
+            if new_password:
+                hashed_password = sha256(new_password.encode('utf-8')).hexdigest()
+                user_json.loc['password', user.id] = hashed_password
+
+        # Update email only if it's not empty
+            if new_email:
+                user_json.loc['email', user.id] = new_email
+
+            if new_password or new_email:
+               msg = "success"
+            else:
+                msg = "nothing done"
         except:
             pass
 
-        user_json.to_json(USER_CREDENTIALS)
-        return render_template('user_profile.html', editPWD="No", name=user.username, msg=msg)
-
-'''
-@app.post('/user/<name>')
-@flask_login.login_required
-def user_edit_pwd(name):
-    if 'editPWD' in request.form:
-        return render_template('user_profile.html', edit="No", editPWD="Yes",
-                               name=user.username)
-    else:
-        new_password = request.form['password']
-        new_password = sha256(new_password.encode('utf-8')).hexdigest()
-        user_json = pd.read_json(USER_CREDENTIALS)
-        user_json.loc['password', user.id] = new_password
-        user_json.to_json(USER_CREDENTIALS)
-        user = User(*user_json[user.id].values)
-        return redirect(url_for('user', name=user.username))
-'''
-
-@app.get('/predictions/<name>')
-@flask_login.login_required
-def user_predictions(name):
-    user = flask_login.current_user
-    try:
-        d_usr = json.load(open(USER_PREDICTIONS, 'r')).get(user.username)
-        # add integer index
-        for i in range(len(d_usr)):
-            d_usr[i]['index'] = i + 1
-        return render_template('user_page.html', name=user.username, items=d_usr)
-    except:
-        return render_template('user_page.html', name=user.username)
-
-@app.post('/predictions/<name>') #it repecent where the user located in the webpage --> /'location/<user name>'
-@flask_login.login_required
-def modify_predictions(name):
-    user = flask_login.current_user
-    print(request.form.keys())
-    d_all = json.load(open(USER_PREDICTIONS, 'r'))
-    if 'add' in request.form:
-        ticker = request.form['ticker']
-        prediction = request.form['prediction']
-        if len(ticker) < 1 or len(prediction) < 2 :
-            
-            # to ensure the inputs are valid, two input are strings, if meet will add, otherwise will redirect to page, and do nothing
-            
-            return redirect(url_for('user_predictions', name=user.username))
-        d_all[user.username].append(dict(ticker=ticker, prediction=prediction))
-    else:
-        # which row to delete
-        del_row = int(list(request.form.keys())[0].replace('Del', ''))
-        # minus 1 because python starts counting by 1
-        d_all[user.username].pop(del_row-1)
-    with open(USER_PREDICTIONS, 'w') as f:
-        json.dump(fp=f, obj=d_all)
-    return redirect(url_for('user_predictions', name=user.username))
+    user_json.to_json(USER_CREDENTIALS)
+    return render_template('user_profile.html', edit="No", name=user.username, msg=msg)
 
 @app.route("/logout")
 @flask_login.login_required
@@ -303,9 +207,46 @@ def calculate_bmi(weight, height_cm):
     height_m = height_cm / 100  # Convert height to meters
     return round(weight / (height_m ** 2), 1)  # Calculate BMI and round to 2 decimal places
 
+def calculate_weight(bmi, height):
+    height_m = height / 100  # Convert height to meters
+    weight = bmi * (height_m ** 2)
+    
+    return weight
+
 def create_custom_cmap():
     return LinearSegmentedColormap.from_list("", ["#3498db", "#f1c40f", "#e74c3c"])
 
+@app.get("/dashboard/bmi-calculator/<name>")
+@flask_login.login_required
+def bmiCalc(name):
+    return render_template("bmi-calculator.html", name=name)
+
+@app.post("/dashboard/bmi-calculator/<name>")
+@flask_login.login_required
+def bmiCalculator(name):
+    weight = float(request.form['weight'])
+    height = float(request.form['height'])
+    bmi = calculate_bmi(weight, height)
+    min_weight = round(calculate_weight(18.5, height), 2)
+    max_weight = round(calculate_weight(24.9, height), 2)
+    foodNutrition = []
+
+    if bmi < 18.5:
+        category = 'Underweight'
+        foodNutrition = ["Nuts and seeds (e.g. almonds, cashews, pumpkin seeds)", "Full-fat dairy products (e.g. whole milk, full-fat yogurt, cheese)",
+                        "Fatty fish (e.g. salmon, tuna)", "Lean meats (e.g. chicken, beef, pork)", "Eggs", "Fruits (e.g bananas, mangoes)", "Vegetables (e.g corn, sweet potatoes)"]
+    elif bmi < 25:
+        category = 'Normal'
+        foodNutrition = ["Vegetables (e.g spinach, kale, broccoli, cauliflower)", "Lean protiens (e.g chicken, fish)", "Legumes (e.g lentils, beans)"
+                        , "Whole grains (e.g quinoa, brown rice)", "Nuts and seeds"]
+    elif bmi < 30:
+        category = 'Overweight'
+        foodNutrition = ['Vegetables (leafy greens, broccoli, bell peppers)', "Fruits (apples, berries, citrus fruits)", "Lean proteins (chicken, turkey, fish)", "Whole grains (brown rice, quinoa, whole wheat)"]
+    else:
+        category = 'Obese'
+        foodNutrition = ['Vegetables (leafy greens, broccoli, bell peppers)', "Fruits (apples, berries, citrus fruits)", "Lean proteins (chicken, turkey, fish)", "Whole grains (brown rice, quinoa, whole wheat)"]
+    return render_template('bmi-calculator.html', name = name, bmi = bmi, height = height, category = category, min_weight = min_weight, max_weight = max_weight, nutrition = foodNutrition)
+    
 # Function for analysing and processing the user data, and providing a visualization of the User's BMI
 @app.get("/dashboard/bmi/<name>")
 @flask_login.login_required
@@ -398,6 +339,8 @@ def bmi(name):
         category = 'Obese'
         
     return render_template("bmi.html", imgsrc=buf_str, name=name, stat_dict = bmi_stats_dict, category=category)
+
+
 
 @app.get("/dashboard/radar/<name>")
 @flask_login.login_required
