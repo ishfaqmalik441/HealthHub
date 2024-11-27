@@ -4,6 +4,21 @@
 
 <div class="d-flex justify-content-center align-items-center h-75 vh-100" style="margin-top: -50px;">
     <div class="container text-center">
+        {% if msg == 'success' %}
+            <div class="alert alert-success alert-dismissible fade show position-fixed start-50 translate-middle-x w-50 text-center" 
+            role="alert" style="top: 15%; z-index: 1050;" >
+                Updated successfully!
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </button>
+        </div>
+        {% elif msg == 'nothing done' %}
+            <div class="alert alert-success alert-dismissible fade show position-fixed start-50 translate-middle-x w-50 text-center" 
+            role="alert" style="top: 15%; z-index: 1050;">
+                No updates were made.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </button>
+    </div>
+        {% endif %}
         <h3>Welcome, {{name}}!</h3>
         <br><br>
         <form method="post">
@@ -20,7 +35,7 @@
                             </tr>
                             <tr>
                                 <th>Password</th>
-                                {% if editPWD == 'No' %}
+                                {% if edit == 'No' %}
                                 <td>
                                     <input type="password" class="form-control-plaintext text-center"
                                         placeholder="******" readonly>
@@ -31,26 +46,40 @@
                                         name="password"
                                         placeholder="******">
                                 </td>
+                                {% endif %}
+                            </tr>
+                            <tr>
+                                <th>Email</th>
+                                {% if edit == 'No' %}
                                 <td>
-                                    <button type="submit" id="confirmPWD"
-                                        name="confirmPWD"
-                                        class="btn btn-success">
-                                        <i class="bi bi-check-circle"></i>
-                                    </button>
+                                    <input type="email" class="form-control-plaintext text-center"
+                                        placeholder="{{current_user.email}}" readonly>
+                                </td>
+                                {% else %}
+                                <td>
+                                    <input type="email" class="form-control text-center"
+                                        name="email"
+                                        placeholder="{{current_user.email}}">
                                 </td>
                                 {% endif %}
                             </tr>
+
                         </tbody>
                     </table>
                 </div>
             </div>
             <div class="mt-4">
+                {% if edit == 'No'%}
                 <button type="submit" id="editPWD" 
                     class="btn btn-lg btn-light fw-bold border-white bg-dark text-white" 
-                    name="editPWD">Edit Password</button>
+                    name="edit">Edit</button>
                 <button type="submit" id="delAC"
                     class="btn btn-lg btn-light fw-bold border-white bg-dark text-white" 
                     name="delAC">Destroy Account</button>
+                {% else %}
+                <button type="submit" id="confirmPWD" name="confirmPWD" 
+                class="btn btn-success btn btn-lg btn-light fw-bold border-white bg-dark text-white">confirm</button>
+                {% endif %}
             </div>
         </form>
     </div>
