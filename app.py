@@ -562,7 +562,6 @@ def calculate_longest_streak(workout_days):
 
     return longest_streak
 
-
 @app.route("/dashboard/calendar/<name>", methods=["GET"])
 @flask_login.login_required
 def display_calendar(name):
@@ -590,11 +589,7 @@ def display_calendar(name):
     )  # Check if displayed month is the current month
 
     # Debug: Confirm calendar and filtering
-    print(calendar)
-    print(type(calendar))
-    print(
-        f"Displaying calendar for {month}/{year}, Current month/year: {now.month}/{now.year}"
-    )
+    print(f"Displaying calendar for {month}/{year}, Current month/year: {now.month}/{now.year}")
     print("is_current_month:", is_current_month)
 
     # Filter workout data for the current month
@@ -603,15 +598,16 @@ def display_calendar(name):
         & (calendar_vis.df["Date"].dt.month == month)
     ]
 
+    # Debug: Print filtered data
     print("Filtered data:", current_month_data)
 
     # Handle possible issues with `Workout(Y/N)`
     if "Workout(Y/N)" not in current_month_data.columns:
         return "Error: Workout(Y/N) column missing from data."
 
-    # Ensure Workout(Y/N) is boolean
+    # Ensure `Workout(Y/N)` is boolean
     current_month_data["Workout(Y/N)"] = current_month_data["Workout(Y/N)"].map(
-        {True: True, 1: True, "Y": True, False: False, 0: False, "N": False}
+        {True: True, 1: True, "Y": True, "Yes": True, False: False, 0: False, "N": False, "No": False}
     )
 
     # Calculate total workouts in the current month
@@ -626,9 +622,7 @@ def display_calendar(name):
     longest_streak = calculate_longest_streak(workout_days)
 
     # Prepare calendar days data
-    days_in_month = calendar.monthrange(year, month)[
-        1
-    ]  # Correct usage of `calendar.monthrange`
+    days_in_month = calendar.monthrange(year, month)[1]
     calendar_days = []
     for day in range(1, days_in_month + 1):
         is_workout = day in workout_days
@@ -642,10 +636,9 @@ def display_calendar(name):
         current_year=year,
         calendar_days=calendar_days,
         total_workouts=total_workouts,
-        longest_streak=longest_streak,  # Keep it in days, not weeks
+        longest_streak=longest_streak,  # Longest streak in days
         is_current_month=is_current_month,  # Pass the variable to the template
     )
-
 
 @app.route("/dashboard/calendar/<name>/next", methods=["GET"])
 @flask_login.login_required

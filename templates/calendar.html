@@ -1,17 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Workout Calendar</title>
+{% extends 'base.html' %}
+
+{% block title %} 
+Workout Calendar
+{% endblock %}
+
+{% block content %}
     <style>
         /* General Reset */
         body {
             font-family: 'Arial', sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #000; /* Dark background */
-            color: white; /* Text color */
+            background-color: whitesmoke; /* Dark background */
+            color: black; /* Text color */
         }
 
         h1, h2, h3 {
@@ -79,20 +80,19 @@
         }
 
         .menu-button:hover {
-            background-color: #444; /* Slightly lighter on hover */
+            background-color: #444;
         }
 
-        /* Greeting Section */
+       
         .greeting {
-            margin-top: 150px; /* Push greeting below navbar and menu button */
+            margin-top: 150px; 
             text-align: center;
         }
 
-        /* Month Title */
         .month-title {
             font-size: 2.5rem;
             font-weight: bold;
-            color: white;
+            color: darkslategrey;
             margin-top: 20px;
             display: flex;
             justify-content: center;
@@ -103,10 +103,10 @@
         .year {
             font-size: 1.5rem;
             font-weight: 300;
-            color: gray;
+            color: steelblue;
         }
 
-        /* Calendar Section */
+    
         .calendar-container {
             margin: 20px auto;
             max-width: 600px;
@@ -114,7 +114,7 @@
 
         .calendar-grid {
             display: grid;
-            grid-template-columns: repeat(7, 1fr); /* 7 columns for days */
+            grid-template-columns: repeat(7, 1fr); 
             gap: 15px;
             justify-items: center;
             margin-top: 20px;
@@ -127,21 +127,21 @@
             text-align: center;
             border-radius: 50%;
             font-size: 1rem;
-            color: gray;
+            color: rgb(48, 47, 5);
             background-color: transparent;
         }
 
         .day.workout {
-            background-color: #4CAF50; /* Green for workout days */
-            color: white;
+            background-color: #4CAF50;
+            color: black;
         }
 
         .day:hover {
-            background-color: #45a049; /* Slightly darker green on hover */
+            background-color: #45a049; 
             cursor: pointer;
         }
 
-        /* Navigation and Stats Section */
+       
         .nav-stats-container {
             display: flex;
             justify-content: space-between;
@@ -155,13 +155,13 @@
 
         .arrow {
             font-size: 2rem;
-            color: white;
+            color: black;
             text-decoration: none;
             transition: color 0.3s ease;
         }
 
         .arrow:hover {
-            color: #4CAF50; /* Green on hover */
+            color: green; /* Green on hover */
         }
 
         .stats-container {
@@ -174,7 +174,7 @@
 
         .stat {
             font-size: 1.2rem;
-            color: white;
+            color: black;
         }
 
         .stat-value {
@@ -238,41 +238,11 @@
             }
         }
 
-        /* Footer */
-        footer {
-            margin-top: 30px;
-            text-align: center;
-            color: gray;
-            padding: 20px 0;
-        }
 
-        footer a {
-            color: #f39c12;
-        }
     </style>
 </head>
 <body>
-    <!-- Navbar -->
-    <div class="navbar">
-        <div class="nav-left">
-            <a href="#">Home</a>
-            <a href="#">Features</a>
-            <a href="#">Dashboard</a>
-        </div>
-        <div class="nav-right">
-            <a href="#">Profile</a>
-            <a href="#">Logout</a>
-        </div>
-    </div>
 
-    <!-- Menu Button Below Navbar -->
-    <button class="menu-button">☰ Menu</button>
-
-    <!-- Greeting -->
-    <div class="greeting">
-        <h1>Hello {{ name }}!</h1>
-        <h2>Your Workout Calendar</h2>
-    </div>
 
     <!-- Month Title -->
     <div class="month-title">
@@ -309,10 +279,4 @@
     </div>
 
     <!-- Footer -->
-    <footer>
-        <p>© 2024 HealthHub</p>
-        <p>Email: <a href="mailto:healthhubsupport@gmail.com">healthhubsupport@gmail.com</a></p>
-        <p>Phone: <a href="tel:+85295788390">+852 9578 8390</a></p>
-    </footer>
-</body>
-</html>
+    {% endblock %}

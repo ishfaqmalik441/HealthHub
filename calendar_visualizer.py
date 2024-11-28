@@ -1,85 +1,81 @@
 import pandas as pd
-import matplotlib.pyplot as plt
-import calendar
-from matplotlib.widgets import Button
-
-import pandas as pd
 import calendar
 import matplotlib.pyplot as plt
+from pathlib import Path
 
 
 class CalendarVisualizer:
-    def __init__(self, data_path, username):
+    def __init__(self, data_path, username, user_calendars):
+        """
+        Initialize the CalendarVisualizer.
+
+        Parameters:
+        - data_path: Path to the Excel file.
+        - username: Username to identify the data.
+        - user_calendars: Global dictionary storing user CalendarVisualizer instances.
+        """
         self.data_path = data_path
         self.username = username
         self.sheet_name = f"workout_data_{username}"
+        self.user_calendars = user_calendars
 
-        # Load user data
-        try:
-            self.df = pd.read_excel(data_path, sheet_name=self.sheet_name)
-            self.df["Date"] = pd.to_datetime(
-                self.df["Date"], errors="coerce"
-            )  # Handle invalid dates
-            self.df["Workout(Y/N)"] = self.df["Workout(Y/N)"].map(
-                {"Y": True, "N": False}
-            )
-            self.df.dropna(
-                subset=["Date"], inplace=True
-            )  # Drop rows with invalid or missing dates
-        except Exception as e:
-            # If the sheet doesn't exist or there is an error, initialize an empty DataFrame
-            print(f"Error loading data for {username}: {e}")
-            self.df = pd.DataFrame(columns=["Date", "Workout(Y/N)"])
+        # Check if the user's data is already in user_calendars
+        if username in self.user_calendars:
+            # Reuse the existing CalendarVisualizer instance
+            self.df = self.user_calendars[username].df
+        else:
+            # Otherwise, try to load the data from the Excel file
+            try:
+                df = pd.read_excel(data_path, sheet_name=self.sheet_name)
+                df["Date"] = pd.to_datetime(df["Date"], errors="coerce")  # Handle invalid dates
+                df["Workout(Y/N)"] = df["Workout(Y/N)"].map({"Y": True, "N": False})
+                df.dropna(subset=["Date"], inplace=True)  # Drop rows with invalid dates
 
-        # Set the current date to the earliest date in the dataset, or today if no data exists
-        self.current_date = (
-            self.df["Date"].min() if not self.df.empty else pd.Timestamp.today()
-        )
+                self.df = df
+                self.user_calendars[username] = self  # Cache this instance for reuse
+            except Exception as e:
+                print(f"Error loading data for {username}: {e}")
+                self.df = pd.DataFrame(columns=["Date", "Workout(Y/N)"])
 
-        # Initialize the figure and plot the current calendar
+        # Set the initial date
+        self.current_date = self.df["Date"].min() if not self.df.empty else pd.Timestamp.today()
+
+        # Initialize the plot
         self.fig, self.ax = plt.subplots(figsize=(10, 6))
         self.update_calendar(self.current_date.year, self.current_date.month)
 
     def plot_calendar(self, year, month):
-        self.ax.clear()  # Clear the previous plot
-        self.ax.set_xlim(-0.5, 6.5)  # Set x-axis limits for the days of the week
-        self.ax.set_ylim(0, 5)  # Set y-axis limits for the weeks
-        self.ax.invert_yaxis()  # Invert y-axis to display weeks from top to bottom
-        self.ax.axis("off")  # Hide axes
+        self.ax.clear()  # Clear the previous month's calendar
+        self.ax.set_xlim(-0.5, 6.5)  # Set x-axis for 7 days (Monday to Sunday)
+        self.ax.set_ylim(0, 5)  # Set y-axis for up to 5 weeks
+        self.ax.invert_yaxis()  # Invert y-axis so the calendar starts at the top
+        self.ax.axis("off")  # Hide the axes for a cleaner calendar look
 
-        # Get the number of days in the month and the starting day of the week
         days_in_month = calendar.monthrange(year, month)[1]
         day_of_week, _ = calendar.monthrange(year, month)
 
-        # Loop through all days in the month
         for day in range(1, days_in_month + 1):
-            x = (day_of_week + day - 1) % 7  # Calculate x-coordinate (day of the week)
-            y = (
-                day_of_week + day - 1
-            ) // 7  # Calculate y-coordinate (week of the month)
+            x = (day_of_week + day - 1) % 7  # Calculate the x-coordinate
+            y = (day_of_week + day - 1) // 7  # Calculate the y-coordinate
             date = pd.Timestamp(year, month, day)
 
-            # Check if the day is a workout day
-            workout_day = not self.df[
-                (self.df["Date"] == date) & (self.df["Workout(Y/N)"])
-            ].empty
+            # Check if this is a workout day
+            workout_day = not self.df[(self.df["Date"] == date) & (self.df["Workout(Y/N)"])].empty
 
             if workout_day:
-                # Plot workout days in green
-                self.ax.plot(x, y, "go", markersize=12, zorder=5)
+                self.ax.plot(x, y, "go", markersize=12, zorder=5)  # Mark workout days in green
                 self.ax.annotate(
                     day,
                     (x, y),
                     textcoords="offset points",
-                    xytext=(0, 10),
+                    xytext=(0, 10),  # Offset text for readability
                     ha="center",
                     color="green",
                     fontsize=10,
                     zorder=10,
                 )
             else:
-                # Plot non-workout days in grey
-                self.ax.plot(x, y, "o", markersize=12, color="lightgrey", zorder=5)
+                self.ax.plot(x, y, "o", markersize=12, color="lightgrey", zorder=5)  # Non-workout days
                 self.ax.annotate(
                     day,
                     (x, y),
@@ -91,18 +87,18 @@ class CalendarVisualizer:
                     zorder=10,
                 )
 
-        # Set the title of the calendar
         self.ax.set_title(f"{calendar.month_name[month]} {year}", fontsize=16, pad=20)
 
     def save_fig(self):
-        # Save the current figure as an image
+        # Save the calendar as an image
         image_path = f"static/img/calendar_{self.username}.png"
+        Path("static/img").mkdir(parents=True, exist_ok=True)  # Ensure the directory exists
         self.fig.savefig(image_path)
-        plt.close(self.fig)  # Close the figure after saving to free up memory
+        plt.close(self.fig)  # Close the figure to free up memory
         return image_path
 
     def update_calendar(self, year, month):
-        # Update the calendar for the given year and month
+        # Update and save the calendar for the given month and year
         self.plot_calendar(year, month)
         return self.save_fig()
 
