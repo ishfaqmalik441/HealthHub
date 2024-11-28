@@ -569,7 +569,6 @@ def calculate_longest_streak(workout_days):
 def display_calendar(name):
     global user_calendars  # Reference the global dictionary
 
-    # Check if the user has a CalendarVisualizer instance
     if name not in user_calendars:
         return redirect(
             url_for(
@@ -577,39 +576,22 @@ def display_calendar(name):
             )
         )
 
-    # Get the user's CalendarVisualizer instance
     calendar_vis = user_calendars[name]
 
-    # Get the current year and month
     year = calendar_vis.current_date.year
     month = calendar_vis.current_date.month
 
-    # Get today's date for comparison
     now = datetime.now()
-    is_current_month = (
-        month == now.month and year == now.year
-    )  # Check if displayed month is the current month
+    is_current_month = month == now.month and year == now.year
 
-    # Debug: Confirm calendar and filtering
-    print(
-        f"Displaying calendar for {month}/{year}, Current month/year: {now.month}/{now.year}"
-    )
-    print("is_current_month:", is_current_month)
-
-    # Filter workout data for the current month
     current_month_data = calendar_vis.df[
         (calendar_vis.df["Date"].dt.year == year)
         & (calendar_vis.df["Date"].dt.month == month)
     ]
 
-    # Debug: Print filtered data
-    print("Filtered data:", current_month_data)
-
-    # Handle possible issues with `Workout(Y/N)`
     if "Workout(Y/N)" not in current_month_data.columns:
         return "Error: Workout(Y/N) column missing from data."
 
-    # Ensure `Workout(Y/N)` is boolean
     current_month_data["Workout(Y/N)"] = current_month_data["Workout(Y/N)"].map(
         {
             True: True,
@@ -623,10 +605,8 @@ def display_calendar(name):
         }
     )
 
-    # Calculate total workouts in the current month
     total_workouts = current_month_data["Workout(Y/N)"].sum()
 
-    # Calculate the longest consecutive streak
     workout_days = current_month_data[current_month_data["Workout(Y/N)"]][
         "Date"
     ].dt.day.tolist()
@@ -634,14 +614,12 @@ def display_calendar(name):
 
     longest_streak = calculate_longest_streak(workout_days)
 
-    # Prepare calendar days data
     days_in_month = calendar.monthrange(year, month)[1]
     calendar_days = []
     for day in range(1, days_in_month + 1):
         is_workout = day in workout_days
         calendar_days.append({"day": day, "workout": is_workout})
 
-    # Render the calendar HTML page
     return render_template(
         "calendar.html",
         name=name,
@@ -649,17 +627,16 @@ def display_calendar(name):
         current_year=year,
         calendar_days=calendar_days,
         total_workouts=total_workouts,
-        longest_streak=longest_streak,  # Longest streak in days
-        is_current_month=is_current_month,  # Pass the variable to the template
+        longest_streak=longest_streak,
+        is_current_month=is_current_month,
     )
 
 
 @app.route("/dashboard/calendar/<name>/next", methods=["GET"])
 @flask_login.login_required
 def next_month(name):
-    global user_calendars  # Reference the global dictionary
+    global user_calendars
 
-    # Check if the user has a CalendarVisualizer instance
     if name in user_calendars:
         calendar_vis = user_calendars[name]
         calendar_vis.next_month()
@@ -673,9 +650,8 @@ def next_month(name):
 @app.route("/dashboard/calendar/<name>/prev", methods=["GET"])
 @flask_login.login_required
 def prev_month(name):
-    global user_calendars  # Reference the global dictionary
+    global user_calendars
 
-    # Check if the user has a CalendarVisualizer instance
     if name in user_calendars:
         calendar_vis = user_calendars[name]
         calendar_vis.prev_month()
@@ -685,9 +661,6 @@ def prev_month(name):
         url_for("dashboard", msg="Please upload your workout data first.", name=name)
     )
 
-
-if __name__ == "__main__":
-    app.run(debug=True)
 
 food_data_df = pd.read_csv("./static/food/food_data.csv")
 
@@ -854,3 +827,7 @@ def calorie_calculator(name):
             return None
 
     return render_template("Dietplan.html", name=name)
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
