@@ -819,4 +819,4 @@ def calorie_calculator(name):
             
             return None
 
-    return render_template("Dietplan.html")
+    return render_template("Dietplan.html", name=name)
