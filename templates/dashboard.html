@@ -75,7 +75,7 @@ Dashboard
                     <!-- Radar Tool -->
                     <div class="col-md-3 text-center mb-4">
                         <div class="border p-3 rounded shadow-sm" style="background-color: #f8f9fa;">
-                            <img src="https://via.placeholder.com/100" alt="Radar Icon" class="img-fluid mb-3">
+                            <img src="{{ url_for('static', filename='img/rader.jpg') }}" alt="Radar Icon" class="img-fluid mb-3">
                             <h5 style="color: #044488;">Radar</h5>
                             <p style="color: #495057;">Radar displays the distribution of your workouts.</p>
                             <a href="/dashboard/radar/{{ current_user.username }}" class="btn btn-primary">Go to Radar</a>
