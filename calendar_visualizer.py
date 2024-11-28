@@ -13,7 +13,9 @@ class CalendarVisualizer:
         - data_path: Path to the Excel file.
         - username: Username to identify the data.
         - user_calendars: Global dictionary storing user CalendarVisualizer instances.
+
         """
+
         self.data_path = data_path
         self.username = username
         self.sheet_name = f"workout_data_{username}"
@@ -27,7 +29,9 @@ class CalendarVisualizer:
             # Otherwise, try to load the data from the Excel file
             try:
                 df = pd.read_excel(data_path, sheet_name=self.sheet_name)
-                df["Date"] = pd.to_datetime(df["Date"], errors="coerce")  # Handle invalid dates
+                df["Date"] = pd.to_datetime(
+                    df["Date"], errors="coerce"
+                )  # Handle invalid dates
                 df["Workout(Y/N)"] = df["Workout(Y/N)"].map({"Y": True, "N": False})
                 df.dropna(subset=["Date"], inplace=True)  # Drop rows with invalid dates
 
@@ -38,7 +42,9 @@ class CalendarVisualizer:
                 self.df = pd.DataFrame(columns=["Date", "Workout(Y/N)"])
 
         # Set the initial date
-        self.current_date = self.df["Date"].min() if not self.df.empty else pd.Timestamp.today()
+        self.current_date = (
+            self.df["Date"].min() if not self.df.empty else pd.Timestamp.today()
+        )
 
         # Initialize the plot
         self.fig, self.ax = plt.subplots(figsize=(10, 6))
@@ -60,10 +66,14 @@ class CalendarVisualizer:
             date = pd.Timestamp(year, month, day)
 
             # Check if this is a workout day
-            workout_day = not self.df[(self.df["Date"] == date) & (self.df["Workout(Y/N)"])].empty
+            workout_day = not self.df[
+                (self.df["Date"] == date) & (self.df["Workout(Y/N)"])
+            ].empty
 
             if workout_day:
-                self.ax.plot(x, y, "go", markersize=12, zorder=5)  # Mark workout days in green
+                self.ax.plot(
+                    x, y, "go", markersize=12, zorder=5
+                )  # Mark workout days in green
                 self.ax.annotate(
                     day,
                     (x, y),
@@ -75,7 +85,9 @@ class CalendarVisualizer:
                     zorder=10,
                 )
             else:
-                self.ax.plot(x, y, "o", markersize=12, color="lightgrey", zorder=5)  # Non-workout days
+                self.ax.plot(
+                    x, y, "o", markersize=12, color="lightgrey", zorder=5
+                )  # Non-workout days
                 self.ax.annotate(
                     day,
                     (x, y),
@@ -92,7 +104,9 @@ class CalendarVisualizer:
     def save_fig(self):
         # Save the calendar as an image
         image_path = f"static/img/calendar_{self.username}.png"
-        Path("static/img").mkdir(parents=True, exist_ok=True)  # Ensure the directory exists
+        Path("static/img").mkdir(
+            parents=True, exist_ok=True
+        )  # Ensure the directory exists
         self.fig.savefig(image_path)
         plt.close(self.fig)  # Close the figure to free up memory
         return image_path
