@@ -15,7 +15,8 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg
 import matplotlib.pyplot as plt
 import openpyxl
 from calendar_visualizer import CalendarVisualizer
-
+import matplotlib
+matplotlib.use('Agg') 
 
 user_calendars = {}
 app = Flask(__name__)
@@ -668,3 +669,143 @@ def prev_month(name):
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+UPLOAD_FOLDER = './uploads'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+food_data_df = pd.read_csv('./static/food/food_data.csv')
+
+def search_food_calories(food_name):
+   
+    food_entry = food_data_df[food_data_df['Food Name'].str.lower() == food_name.lower()]
+    if not food_entry.empty:
+        return food_entry['Calories (kcal)'].values[0] 
+    else:
+        return "unknown"
+    
+def calculate_daily_calories(current_weight, target_weight, days, bmr):
+        weight_diff = target_weight - current_weight
+        total_calorie_deficit = weight_diff * 7700 
+        daily_calorie_deficit = total_calorie_deficit / days
+        return bmr + daily_calorie_deficit
+
+def calculate_bmr(weight, height, age, gender,activity_level):
+    if gender == 'male':
+        return (66 + (13.7 * weight) + (5 * height) - (6.8 * age))*activity_level
+    else:
+        return (655 + (9.6 * weight) + (1.8 * height) - (4.7 * age))*activity_level
+
+def process_csv(file_path):
+    try:
+        df = pd.read_csv(file_path)
+        
+        if 'Date' not in df.columns or 'Food' not in df.columns or 'FoodWeight' not in df.columns:
+            raise ValueError("CSV must contain 'Date', 'Food', and 'FoodWeight' columns.")
+        
+        df['Calories'] = df.apply(lambda row: search_food_calories(row['Food']) * row['FoodWeight'] / 100, axis=1)
+        
+        df['Calories'] = pd.to_numeric(df['Calories'])
+        
+        df['TotalWeight'] = df.groupby('Date')['Calories'].transform('sum')
+
+        result_df = df[['Date', 'Food', 'Calories', 'TotalWeight']]
+        
+        return result_df
+    except Exception as e:
+        print(f"Error processing CSV: {e}")
+        return None
+
+def generate_comparison_chart(daily_actual_calories, daily_calories_target, output_path):
+    try:
+        
+        daily_actual_calories_unique = daily_actual_calories[["Date","TotalWeight"]].drop_duplicates()
+   
+        daily_actual_calories_unique["Date"] = pd.to_datetime(daily_actual_calories_unique["Date"], format="%d/%m/%Y")
+        daily_actual_calories_unique.sort_values(by="Date", inplace=True)
+        daily_actual_calories_unique["TargetWeight"] = daily_calories_target
+        
+        dates = daily_actual_calories_unique["Date"]
+        actual_weight = daily_actual_calories_unique["TotalWeight"]
+        target_weight = daily_actual_calories_unique["TargetWeight"]
+        
+        plt.figure(figsize=(10, 10))
+        plt.plot(dates, actual_weight, label="Actual calorie", marker='o', color="blue", linewidth=2)
+        plt.plot(dates, target_weight, label="Target calorie", linestyle="--", color="red", linewidth=2)
+        
+        plt.xlabel("Date", fontsize=12)
+        plt.ylabel("Calories", fontsize=12)
+        plt.title("Daily calorie Comparison", fontsize=16, fontweight="bold")
+        plt.xticks(rotation=45, fontsize=10)
+        plt.yticks(fontsize=10)
+        plt.grid(alpha=0.3)
+        plt.legend(fontsize=12, loc="upper right")
+        plt.tight_layout()
+        plt.savefig(output_path)
+        plt.close()
+        
+    except Exception as e:
+        print(f"Error generating chart: {e}")
+
+
+
+@app.route("/dashboard/Dietplan/<name>", methods=["GET", "POST"])
+@flask_login.login_required
+def calorie_calculator(name):
+    if request.method == "POST":
+        try:
+            weight = float(request.form.get("weight"))
+            height = float(request.form.get("height"))
+            age = int(request.form.get("age"))
+            gender = request.form.get("gender")
+            
+            target_weight = float(request.form.get("target_weight"))
+            days = int(request.form.get("days"))
+            activity_level = float(request.form.get("activity_level"))
+
+            
+            bmr = calculate_bmr(weight, height, age, gender, activity_level)
+            daily_calories_target = calculate_daily_calories(weight, target_weight, days, bmr)
+            if daily_calories_target < 1200:
+                daily_calories_target = 1200
+
+            
+            uploaded_file = request.files['file']
+            if uploaded_file and uploaded_file.filename.endswith(".csv"):
+                file_path = os.path.join(app.config['UPLOAD_FOLDER'], uploaded_file.filename)
+                uploaded_file.save(file_path)
+            elif uploaded_file and uploaded_file.filename.endswith(".xls"):
+                file_path = os.path.join(app.config['UPLOAD_FOLDER'], uploaded_file.filename)
+                uploaded_file.save(file_path)
+            else:
+                file_path = os.path.join(app.config['UPLOAD_FOLDER'], uploaded_file.filename)
+                uploaded_file.save(file_path)
+               
+                daily_actual_calories = process_csv(file_path)
+
+
+                
+                if daily_actual_calories is None or daily_actual_calories.empty:
+                    return "Error processing CSV file. The DataFrame is empty or couldn't be processed.", 400
+
+                
+                daily_actual_calories_unique = daily_actual_calories[["Date","TotalWeight"]].drop_duplicates()
+                daily_actual_calories_unique["Date"] = pd.to_datetime(daily_actual_calories_unique["Date"], format="%d/%m/%Y").dt.date
+                daily_actual_calories_unique.sort_values(by="Date", inplace=True)
+                daily_actual_calories_list = daily_actual_calories_unique[['Date', "TotalWeight"]].values.tolist()
+
+               
+                chart_path = os.path.join('static', 'img', "comparison_chart.png")
+                generate_comparison_chart(daily_actual_calories, daily_calories_target, chart_path)
+
+                
+                return render_template("Dietplan.html", 
+                                       daily_calories_target=daily_calories_target,
+                                       daily_actual_calories=daily_actual_calories_list,
+                                       name=flask_login.current_user.username,
+                                       chart_path=url_for('static', filename='img/comparison_chart.png'))
+        except:
+            
+            print(f"An error occurred: {e}")
+            return f"An error occurred: {e}", 400
+
+    return render_template("Dietplan.html")

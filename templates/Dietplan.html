@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+{% block content %}
+<body>
+    <div class="container">
+        <h1 class="title">Calorie Management for {{ name }}</h1>
+        <form method="POST" enctype="multipart/form-data" class="form-container">
+            <label for="weight">Current Weight (kg):</label>
+            <input type="number" id="weight" name="weight" step="0.1" required>
+
+            <label for="height">Height (cm):</label>
+            <input type="number" id="height" name="height" step="0.1" required>
+
+            <label for="age">Age:</label>
+            <input type="number" id="age" name="age" required>
+
+            <label for="gender">Gender:</label>
+            <select id="gender" name="gender" required>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+            </select>
+
+            <label for="target_weight">Target Weight (kg):</label>
+            <input type="number" id="target_weight" name="target_weight" step="0.1" required>
+
+            <label for="days">Days to Achieve Goal:</label>
+            <input type="number" id="days" name="days" required>
+
+            <label for="activity_level">Activity Level:</label>
+            <select id="activity_level" name="activity_level" required>
+                <option value="1.2">Sedentary (little or no exercise)</option>
+                <option value="1.375">Lightly active (exercise 1-3 times per week)</option>
+                <option value="1.55">Moderately active (exercise 3-5 times per week)</option>
+                <option value="1.725">Very active (hard exercise 6-7 times per week)</option>
+                <option value="1.9">Super active (very hard exercise or physical job)</option>
+            </select>
+
+            <label for="file">Upload Diet Plan:</label>
+            <input type="file" id="file" name="file" accept=".csv, .xls, .xlsx" required>
+
+            <button type="submit">Submit</button>
+        </form>
+
+        {% if daily_actual_calories %}
+        <div class="results">
+            <h2>Results</h2>
+            <p><strong>Daily Target Calories:</strong> {{ daily_calories_target }} kcal</p>
+
+            <h3>Actual Calories from Uploaded CSV:</h3>
+            <ul>
+                {% for entry in daily_actual_calories %}
+                    <li>{{ entry[0] }}: {{ entry[1] }} kcal</li>
+                {% endfor %}
+            </ul>
+
+            <h3>Comparison Chart:</h3>
+            <img src="{{ chart_path }}" alt="Calorie Comparison Chart" class="chart">
+        </div>
+        {% endif %}
+    </div>
+
+    <style>
+       
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        
+        .title {
+            text-align: center;
+            color: #4CAF50;
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+       
+        .form-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;  
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+       
+        label {
+            font-size: 1rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+       
+        input, select {
+            padding: 12px;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            width: 100%;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+
+       
+        button {
+            padding: 12px;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        button:active {
+            background-color: #388e3c;
+        }
+
+      
+        .results {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+        }
+
+        .results h2 {
+            color: #333;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        .results ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .results ul li {
+            padding: 5px 0;
+            font-size: 1.1rem;
+        }
+
+     
+        .chart {
+            width: 100%;
+            max-width: 600px;
+            display: block;
+            margin: 20px auto;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+    </style>
+</body>
+{% endblock %}
+

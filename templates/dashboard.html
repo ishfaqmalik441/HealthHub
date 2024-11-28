@@ -26,14 +26,9 @@ Dashboard
                 You are logged in!
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
-            {% elif msg == 'Sheet not found' %}
-            <div class="alert alert-success alert-dismissible fade show position-fixed start-50 translate-middle-x w-50 text-center" role="alert" style="bottom: 20%; z-index: 1050;">
-                You have not uploaded an excel or csv file yet! Please upload a file to continue
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
             {% endif %}
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                <h1 class="h2" style="color: #009b77;">Welcome to your HealthHub Dashboard {{ name }}!</h1>
+                <h1 class="h2" style="color: #009b77;">Hello {{ name }}!</h1>
             </div>
 
             <!-- File upload section -->
@@ -79,7 +74,7 @@ Dashboard
                             <img src="{{ url_for('static', filename='img/diet.png') }}" alt="Diet Icon" class="img-fluid mb-3">
                             <h5 style="color: #044488;">Diet Plan</h5>
                             <p style="color: #495057;">Get a personalized diet plan tailored to your fitness goals.</p>
-                            <a href="#" class="btn btn-primary">Get Your Plan</a>
+                            <a href="/dashboard/Dietplan/{{ current_user.username }}" class="btn btn-primary"> Get Your Plan</a>
                         </div>
                     </div>
 
