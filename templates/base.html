@@ -32,8 +32,8 @@
   </head>
   
   <body>
-    <header class="p-3 text-bg-dark">
-      <div class="container">
+    <header class="p-3" style="background-color: #080c32;">
+      <div class= "container">
         <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
           <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
             <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap"><use xlink:href="#bootstrap"/></svg>
@@ -42,12 +42,12 @@
           <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
             <img src="https://i.pinimg.com/736x/d0/65/e9/d065e9c1ded559b7564bfd29f1b0080c.jpg" alt="HealthHub Logo" style="height: 50px; margin-right: 10px;">
             <li>
-              <a href="/" class="btn btn-dark px-2 text-white" type="button" aria-expanded="false">Home</a>
+              <a href="/" class="btn px-2 text-white" style="background-color: #080c32" type="button" aria-expanded="false">Home</a>
             </li>
             <li>
               {% if current_user.is_authenticated %}
               <div class="dropdown">
-                <button class="btn btn-dark dropdown-toggle" type="button" id="menuDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <button class="btn text-white" style="background-color: #080c32" type="button" id="menuDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                     Features
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="menuDropdown">
@@ -60,12 +60,12 @@
               {% endif %}
             </li>
             {% if not current_user.is_authenticated %}
-            <a class="btn btn-outline-warning me-2 disabled" href="#" style="margin-left: 10px;"> Dashboard</a>
+            <a class="btn btn-outline-light text-white me-2 disabled" href="#" style="background-color: #080c32"> Dashboard</a>
             {% endif %}
             {% if current_user.is_authenticated %}
-              <a class="btn btn-dark" type="button" aria-expanded="false" href="/dashboard/{{ current_user.username }}">
-                Dashboard
-              </a>
+            <a class="btn btn-outline-light text-white me-2" href="#" style="background-color: #080c32;">
+              Dashboard
+            </a>
             {% endif %}
           </ul>
 
@@ -75,8 +75,8 @@
             {% endif %}
             {% if current_user.is_authenticated %}
             <div class="d-inline-flex align-items-center">
-              <a class="btn btn-dark px-2 text-white" href="/user/{{ current_user.username }}">Profile</a>
-              <a class="btn btn-dark px-2 text-white" href="/logout">Logout</a>
+              <a class="btn btn-outline-light me-2 text-white" style="background-color: #080c32" href="/user/{{ current_user.username }}">Profile</a>
+              <a class="btn btn-outline-light me-2 text-white" style="background-color: #080c32" href="/logout">Logout</a>
             </div>
             {% endif %}
           </div>
