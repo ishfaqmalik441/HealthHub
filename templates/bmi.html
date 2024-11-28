@@ -6,19 +6,6 @@ BMI Analysis
 
 {% block content %}
 <div class="container-fluid d-flex flex-column align-items-center justify-content-center" style="min-height: calc(100vh - 80px); padding-top: 15px;">
-    <!-- Dropdown Menu aligned to the right -->
-    <div class="dropdown position-absolute" style="top: 80px; left: 125px;">
-        <button class="btn btn-dark dropdown-toggle" type="button" id="menuDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-            ☰ Menu
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="menuDropdown">
-            <li><a class="dropdown-item" href="/dashboard/bmi/{{ current_user.username }}">BMI</a></li>
-            <li><a class="dropdown-item" href="/dashboard/radar/{{ current_user.username }}">Radar</a></li>
-            <li><a class="dropdown-item" href="#">DataVis2</a></li>
-            <li><a class="dropdown-item" href="#">DataVis</a></li>
-        </ul>
-    </div>
-
     <!-- Main content section -->
     <main class="text-center bg-light p-4 rounded shadow-lg" style="max-width: 800px; font-family: 'Roboto', sans-serif;">
         <h1 class="mb-4" style="color: #000000;">Body Mass Index (BMI) Analysis for <span style="color: #007bff;">{{ name }}</span></h1>

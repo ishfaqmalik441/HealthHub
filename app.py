@@ -328,131 +328,131 @@ def bmiCalculator(name):
 def bmi(name):
     bmi_stats_dict = {}
     user = flask_login.current_user
-    user_data = pd.read_excel(
+    try:
+        user_data = pd.read_excel(
         "static/user_workout_DB/Users.xlsx",
         sheet_name=["workout_data_%s" % user.username],
-    )
-    user_data = user_data["workout_data_%s" % user.username]
-    user_data["height"] = user_data["height"][0]
+        )
+        user_data = user_data["workout_data_%s" % user.username]
+        user_data["height"] = user_data["height"][0]
 
-    user_data["Date"] = user_data["Date"].dt.date
-    user_data["BMI"] = calculate_bmi(user_data["weight_record"], user_data["height"])
-    healthy_bmi_max = 24.9
-    healthy_bmi_min = 18.5
-    count = user_data["BMI"].count()
+        user_data["Date"] = user_data["Date"].dt.date
+        user_data["BMI"] = calculate_bmi(user_data["weight_record"], user_data["height"])
+        healthy_bmi_max = 24.9
+        healthy_bmi_min = 18.5
+        count = user_data["BMI"].count()
 
-    bmi_stats_dict["DayCount"] = count
-    highestbmiIndex = user_data["BMI"].idxmax()
-    bmi_stats_dict["highestbmi"] = {
-        "date": user_data.loc[highestbmiIndex]["Date"],
-        "value": user_data["BMI"].max(),
-    }
-    healthyDays = 0
-    for bmi in user_data["BMI"]:
-        if bmi > 18.5 and bmi < 25:
-            healthyDays = healthyDays + 1
-    bmi_stats_dict["healthyDays"] = healthyDays
-    lowestbmiIndex = user_data["BMI"].idxmin()
-    bmi_stats_dict["lowestbmi"] = {
-        "date": user_data.loc[lowestbmiIndex]["Date"],
-        "value": user_data["BMI"].min(),
-    }
-    bmi_stats_dict["avgbmi"] = round(user_data["BMI"].mean(), 2)
-    bmi_stats_dict["stdbmi"] = round(user_data["BMI"].std(), 2)
+        bmi_stats_dict["DayCount"] = count
+        highestbmiIndex = user_data["BMI"].idxmax()
+        bmi_stats_dict["highestbmi"] = {
+            "date": user_data.loc[highestbmiIndex]["Date"],
+            "value": user_data["BMI"].max(),
+        }
+        healthyDays = 0
+        for bmi in user_data["BMI"]:
+            if bmi > 18.5 and bmi < 25:
+                healthyDays = healthyDays + 1
+        bmi_stats_dict["healthyDays"] = healthyDays
+        lowestbmiIndex = user_data["BMI"].idxmin()
+        bmi_stats_dict["lowestbmi"] = {
+            "date": user_data.loc[lowestbmiIndex]["Date"],
+            "value": user_data["BMI"].min(),
+        }
+        bmi_stats_dict["avgbmi"] = round(user_data["BMI"].mean(), 2)
+        bmi_stats_dict["stdbmi"] = round(user_data["BMI"].std(), 2)
 
-    fig = Figure(figsize=[11, 6])
-    ax_arr = fig.subplots(ncols=1)
-    ax = ax_arr
+        fig = Figure(figsize=[11, 6])
+        ax_arr = fig.subplots(ncols=1)
+        ax = ax_arr
 
-    # Plot BMI data
-    ax.plot(
-        user_data["Date"],
-        user_data["BMI"],
-        label="BMI (Line)",
-        color="#3498db",
-        linestyle="-",
-        linewidth=2,
-        alpha=0.7,
-    )
-    ax.scatter(
-        user_data["Date"],
-        user_data["BMI"],
-        label="BMI (Scatter)",
-        color="#f1c40f",
-        s=80,
-        edgecolor="white",
-        zorder=100,
-    )
+        # Plot BMI data
+        ax.plot(
+            user_data["Date"],
+            user_data["BMI"],
+            label="BMI (Line)",
+            color="#3498db",
+            linestyle="-",
+            linewidth=2,
+            alpha=0.7,
+        )
+        ax.scatter(
+            user_data["Date"],
+            user_data["BMI"],
+            label="BMI (Scatter)",
+            color="#f1c40f",
+            s=80,
+            edgecolor="white",
+            zorder=100,
+        )
 
-    # Add healthy BMI range
-    ax.axhspan(
-        healthy_bmi_min,
-        healthy_bmi_max,
-        color="#2ecc71",
-        label="Healthy BMI Range (18.5 - 24.9)",
-        alpha=0.2,
-    )
+        # Add healthy BMI range
+        ax.axhspan(
+            healthy_bmi_min,
+            healthy_bmi_max,
+            color="#2ecc71",
+            label="Healthy BMI Range (18.5 - 24.9)",
+            alpha=0.2,
+        )
 
-    # Set y-axis limits
-    bmi_min = max(0, user_data["BMI"].min() - 1)
-    bmi_max = user_data["BMI"].max() + 1
-    ax.set_ylim(bmi_min, bmi_max)
+        # Set y-axis limits
+        bmi_min = max(0, user_data["BMI"].min() - 1)
+        bmi_max = user_data["BMI"].max() + 1
+        ax.set_ylim(bmi_min, bmi_max)
 
-    # Customize plot appearance
-    ax.set_xlabel("Date", fontsize=14, fontweight="bold")
-    ax.set_ylabel("BMI", fontsize=14, fontweight="bold")
-    ax.set_title(f"BMI throughout the {count} days", fontsize=18, fontweight="bold")
+        # Customize plot appearance
+        ax.set_xlabel("Date", fontsize=14, fontweight="bold")
+        ax.set_ylabel("BMI", fontsize=14, fontweight="bold")
+        ax.set_title(f"BMI throughout the {count} days", fontsize=18, fontweight="bold")
 
-    # Customize legend
-    ax.legend(loc="upper right", fontsize=12, framealpha=0.9)
+        # Customize legend
+        ax.legend(loc="upper right", fontsize=12, framealpha=0.9)
 
-    # Customize grid
-    ax.grid(axis="y", linestyle="--", alpha=0.7, color="#666666")
-    ax.grid(axis="x", linestyle="-", alpha=0.3, color="#999999")
+        # Customize grid
+        ax.grid(axis="y", linestyle="--", alpha=0.7, color="#666666")
+        ax.grid(axis="x", linestyle="-", alpha=0.3, color="#999999")
 
-    # Customize ticks
-    ax.tick_params(axis="both", labelsize=10)
+        # Customize ticks
+        ax.tick_params(axis="both", labelsize=10)
 
-    # # Customize figure background
-    # fig.patch.set_facecolor('#212121')
-    # ax.set_facecolor('#333333')
+        # Remove top and right spines
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
 
-    # Remove top and right spines
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
+        # Customize spine colors
+        ax.spines["bottom"].set_color("#666666")
+        ax.spines["left"].set_color("#666666")
 
-    # Customize spine colors
-    ax.spines["bottom"].set_color("#666666")
-    ax.spines["left"].set_color("#666666")
+        fig.tight_layout()
 
-    fig.tight_layout()
+        # Convert plot to PNG image
+        buf = BytesIO()
+        FigureCanvasAgg(fig).print_png(buf)
 
-    # Convert plot to PNG image
-    buf = BytesIO()
-    FigureCanvasAgg(fig).print_png(buf)
+        # Encode PNG image to base64 string
+        buf_str = "data:image/png;base64,"
+        buf_str += base64.b64encode(buf.getvalue()).decode("utf8")
 
-    # Encode PNG image to base64 string
-    buf_str = "data:image/png;base64,"
-    buf_str += base64.b64encode(buf.getvalue()).decode("utf8")
+        if bmi_stats_dict["avgbmi"] < 18.5:
+            category = "Underweight"
+        elif bmi_stats_dict["avgbmi"] < 25:
+            category = "Normal"
+        elif bmi_stats_dict["avgbmi"] < 30:
+            category = "Overweight"
+        else:
+            category = "Obese"
 
-    if bmi_stats_dict["avgbmi"] < 18.5:
-        category = "Underweight"
-    elif bmi_stats_dict["avgbmi"] < 25:
-        category = "Normal"
-    elif bmi_stats_dict["avgbmi"] < 30:
-        category = "Overweight"
-    else:
-        category = "Obese"
-
-    return render_template(
-        "bmi.html",
-        imgsrc=buf_str,
-        name=name,
-        stat_dict=bmi_stats_dict,
-        category=category,
-    )
-
-
+        return render_template(
+            "bmi.html",
+            imgsrc=buf_str,
+            name=name,
+            stat_dict=bmi_stats_dict,
+            category=category,
+        )
+    except Exception as e:
+        return redirect(url_for("dashboard", name = name, msg="Sheet not found"))
+    
+    
+    redirect(url_for("dashboard", name = name, msg="Sheet not found"))
 @app.get("/dashboard/radar/<name>")
 @flask_login.login_required
 def radar(name):
@@ -483,7 +483,7 @@ def radar(name):
         table["Date"] = pd.to_datetime(table["Date"])
         return table[(table["Date"] <= end) & (table["Date"] >= start)]
 
-    today = pd.to_datetime(datetime.datetime.today())
+    today = pd.to_datetime(datetime.today())
     this_week_data = dataByTime(user_data, today, today - timedelta(days=7))
     last_two_weeks_data = dataByTime(user_data, today, today - timedelta(days=14))
     last_four_weeks_data = dataByTime(user_data, today, today - timedelta(days=28))
