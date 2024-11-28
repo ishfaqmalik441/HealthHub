@@ -16,7 +16,6 @@ Dashboard
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
 {% endif %}
-
 <div class="container-fluid">
     <div class="row vh-100">
         <!-- Main content section with full-width layout -->
@@ -35,12 +34,27 @@ Dashboard
             <div class="border p-4 rounded shadow-sm mb-4" style="background-color: #f8f9fa;">
                 <h4 style="color: #3f4347;">Upload your latest CSV or Excel file containing your health and workout data below:</h4>
                 <br>
-                <form action="/upload/{{ current_user.username }}" method="POST" enctype="multipart/form-data">
-                    <input type="file" id="fileUploadButton" name="file" accept=".csv, .xlsx" style="border: 1px solid #ccc; border-radius: 5px; padding: 8px;">
-                    <button type="submit" class="btn btn-dark mt-2" style="border-radius: 5px; background-color: black; color: white;">Upload</button>
-                </form>
+                <div class="d-flex align-items-center gap-3">
+                    <!-- Upload Form -->
+                    <form action="/upload/{{ current_user.username }}" method="POST" enctype="multipart/form-data" class="d-flex align-items-center gap-2">
+                        <input type="file" id="fileUploadButton" name="file" accept=".csv, .xlsx" style="border: 1px solid #ccc; border-radius: 5px; padding: 8px;">
+                        <button type="submit" class="btn btn-dark" style="border-radius: 5px; background-color: black; color: white;">Upload</button>
+                    </form>
+            
+                    <!-- Download Buttons -->
+                    <div class="d-flex gap-2">
+                        <a href="{{ url_for('download_file', template_name='template_1.xlsx') }}" class="btn btn-primary">
+                            Template 1
+                        </a>
+                        <a href="{{ url_for('download_file', template_name='Dietplan.xlsx') }}" class="btn btn-primary">
+                            Diet Plan Excel File
+                        </a>
+                        <a href="{{ url_for('download_file', template_name='template_3.xlsx') }}" class="btn btn-primary">
+                            Template 3
+                        </a>
+                    </div>
+                </div>
             </div>
-
             <!-- Section with icons, buttons, and descriptions -->
             <div class="mt-5">
                 <div class="row justify-content-center">
@@ -73,7 +87,10 @@ Dashboard
                         <div class="border p-3 rounded shadow-sm" style="background-color: #f8f9fa;">
                             <img src="{{ url_for('static', filename='img/diet.png') }}" alt="Diet Icon" class="img-fluid mb-3">
                             <h5 style="color: #044488;">Diet Plan</h5>
-                            <p style="color: #495057;">Get a personalized diet plan tailored to your fitness goals.</p>
+                            <p style="color: #495057;">
+                                *Upload your file in the Dietplan page*
+                                Get a personalized diet plan tailored to your fitness goals.
+                            </p>
                             <a href="/dashboard/Dietplan/{{ current_user.username }}" class="btn btn-primary"> Get Your Plan</a>
                         </div>
                     </div>

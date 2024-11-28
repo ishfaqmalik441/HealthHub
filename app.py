@@ -16,7 +16,9 @@ import matplotlib.pyplot as plt
 import openpyxl
 from calendar_visualizer import CalendarVisualizer
 import matplotlib
-matplotlib.use('Agg') 
+matplotlib.use('Agg')
+from flask import Flask, render_template, request, redirect, url_for, send_file
+import os
 
 user_calendars = {}
 app = Flask(__name__)
@@ -26,6 +28,16 @@ app.secret_key = "9773e89f69e69285cf11c10cbc44a37945f6abbc5d78d5e20c2b1b0f12d75a
 upload_folder = "uploads"
 os.makedirs(upload_folder, exist_ok=True)
 app.config["upload_folder"] = upload_folder
+
+
+
+
+@app.route('/download/<template_name>', methods=['GET'])
+def download_file(template_name):
+    file_path = os.path.join("./static/file_template", template_name)
+    return send_file(file_path, as_attachment=True, download_name=template_name)
+
+
 
 # Login
 login_manager = flask_login.LoginManager()
@@ -805,7 +817,6 @@ def calorie_calculator(name):
                                        chart_path=url_for('static', filename='img/comparison_chart.png'))
         except:
             
-            print(f"An error occurred: {e}")
-            return f"An error occurred: {e}", 400
+            return None
 
     return render_template("Dietplan.html")
