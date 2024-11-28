@@ -239,16 +239,13 @@ def upload_file(name):
                 url_for("dashboard", msg="File Type not supported", name=name)
             )
 
-        # Save the file to the user's specific sheet in the Users.xlsx file
         file_path = "static/user_workout_DB/Users.xlsx"
         with pd.ExcelWriter(file_path, mode="a", if_sheet_exists="replace") as writer:
             data.to_excel(writer, sheet_name=f"workout_data_{name}", index=False)
 
-        # Initialize CalendarVisualizer for this user
-        user_calendars[name] = CalendarVisualizer(file_path, name)
+        user_calendars[name] = CalendarVisualizer(file_path, name, user_calendars)
 
         return redirect(url_for("dashboard", msg="File Uploaded", name=name))
-
 
 # Function for calculating the user BMI
 def calculate_bmi(weight, height_cm):
@@ -563,20 +560,24 @@ def calculate_longest_streak(workout_days):
 
     return longest_streak
 
-
 @app.route("/dashboard/calendar/<name>", methods=["GET"])
 @flask_login.login_required
 def display_calendar(name):
-    global user_calendars  # Reference the global dictionary
+    global user_calendars
 
     if name not in user_calendars:
-        return redirect(
-            url_for(
-                "dashboard", msg="Please upload your workout data first.", name=name
+        try:
+            calendar_vis = CalendarVisualizer(name, user_calendars)
+        except Exception as e:
+            return redirect(
+                url_for(
+                    "dashboard",
+                    msg="Error loading your workout data. Please upload it first.",
+                    name=name,
+                )
             )
-        )
-
-    calendar_vis = user_calendars[name]
+    else:
+        calendar_vis = user_calendars[name]
 
     year = calendar_vis.current_date.year
     month = calendar_vis.current_date.month
@@ -610,7 +611,6 @@ def display_calendar(name):
     workout_days = current_month_data[current_month_data["Workout(Y/N)"]][
         "Date"
     ].dt.day.tolist()
-    print("Workout Days:", workout_days)
 
     longest_streak = calculate_longest_streak(workout_days)
 
