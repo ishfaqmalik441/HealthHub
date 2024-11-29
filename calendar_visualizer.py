@@ -4,29 +4,24 @@ import calendar
 from pathlib import Path
 
 class CalendarVisualizer:
-    def __init__(self, file_path, username, user_calendars):
-        self.data_path = file_path  # Use the provided file path
+    def __init__(self, file_path, username):
+        self.data_path = file_path
         self.username = username
         self.sheet_name = f"workout_data_{username}"
-        self.user_calendars = user_calendars
 
-        # Check if the user's calendar is already cached
-        if username in self.user_calendars:
-            self.df = self.user_calendars[username].df
-        else:
-            try:
-                # Load user data from the Excel file
-                user_data = pd.read_excel(self.data_path, sheet_name=self.sheet_name)
-                user_data["Date"] = pd.to_datetime(user_data["Date"], errors="coerce")
-                user_data["Workout(Y/N)"] = user_data["Workout(Y/N)"].map({"Y": True, "N": False})
-                user_data.dropna(subset=["Date"], inplace=True)
-                self.df = user_data
-                self.user_calendars[username] = self
-            except Exception as e:
-                print(f"Error loading data for {username}: {e}")
-                self.df = pd.DataFrame(columns=["Date", "Workout(Y/N)"])
+        # Attempt to read data directly from the file
+        try:
+            self.df = pd.read_excel(self.data_path, sheet_name=self.sheet_name)
+            self.df["Date"] = pd.to_datetime(self.df["Date"], errors="coerce")
+            self.df["Workout(Y/N)"] = self.df["Workout(Y/N)"].map({"Y": True, "N": False})
+            self.df.dropna(subset=["Date"], inplace=True)
+        except FileNotFoundError:
+            print(f"Error: File not found at {self.data_path}")
+            self.df = pd.DataFrame(columns=["Date", "Workout(Y/N)"])  # Create empty DataFrame
+        except ValueError as e:  # Catch potential sheet name errors
+            print(f"Error reading sheet '{self.sheet_name}': {e}")
+            self.df = pd.DataFrame(columns=["Date", "Workout(Y/N)"])  # Create empty DataFrame
 
-        # Initialize the current date and calendar
         self.current_date = self.df["Date"].min() if not self.df.empty else pd.Timestamp.today()
         self.fig, self.ax = plt.subplots(figsize=(10, 6))
         self.update_calendar(self.current_date.year, self.current_date.month)

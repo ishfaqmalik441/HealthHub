@@ -243,7 +243,7 @@ def upload_file(name):
         with pd.ExcelWriter(file_path, mode="a", if_sheet_exists="replace") as writer:
             data.to_excel(writer, sheet_name=f"workout_data_{name}", index=False)
 
-        user_calendars[name] = CalendarVisualizer(file_path, name, user_calendars)
+        user_calendars[name] = CalendarVisualizer(file_path, name)
 
         return redirect(url_for("dashboard", msg="File Uploaded", name=name))
 
@@ -560,36 +560,48 @@ def calculate_longest_streak(workout_days):
 
     return longest_streak
 
+USER_WORKOUT_DB_PATH = "static/user_workout_DB/Users.xlsx"
+
+
 @app.route("/dashboard/calendar/<name>", methods=["GET"])
 @flask_login.login_required
 def display_calendar(name):
-    global user_calendars
-
-    if name not in user_calendars:
-        try:
-            calendar_vis = CalendarVisualizer(name, user_calendars)
-        except Exception as e:
-            return redirect(
-                url_for(
-                    "dashboard",
-                    msg="Error loading your workout data. Please upload it first.",
-                    name=name,
-                )
+    # Try to create a CalendarVisualizer instance for the user
+    try:
+        calendar_vis = CalendarVisualizer(USER_WORKOUT_DB_PATH, name)
+    except FileNotFoundError:
+        # Handle case where the file does not exist
+        return redirect(
+            url_for(
+                "dashboard",
+                msg="Error: Workout data file not found. Please upload it first.",
+                name=name,
             )
-    else:
-        calendar_vis = user_calendars[name]
+        )
+    except ValueError as e:
+        # Handle case where the sheet does not exist for the user
+        return redirect(
+            url_for(
+                "dashboard",
+                msg=f"Error loading your workout data: {e}. Please upload it first.",
+                name=name,
+            )
+        )
 
+    # Get the current year and month from the visualizer
     year = calendar_vis.current_date.year
     month = calendar_vis.current_date.month
 
     now = datetime.now()
     is_current_month = month == now.month and year == now.year
 
+    # Filter data for the current month
     current_month_data = calendar_vis.df[
         (calendar_vis.df["Date"].dt.year == year)
         & (calendar_vis.df["Date"].dt.month == month)
     ]
 
+    # Ensure the "Workout(Y/N)" column exists and map its values to boolean
     if "Workout(Y/N)" not in current_month_data.columns:
         return "Error: Workout(Y/N) column missing from data."
 
@@ -608,18 +620,22 @@ def display_calendar(name):
 
     total_workouts = current_month_data["Workout(Y/N)"].sum()
 
+    # Get a list of workout days for the current month
     workout_days = current_month_data[current_month_data["Workout(Y/N)"]][
         "Date"
     ].dt.day.tolist()
 
+    # Calculate the longest streak
     longest_streak = calculate_longest_streak(workout_days)
 
+    # Generate a list of calendar days with workout information
     days_in_month = calendar.monthrange(year, month)[1]
     calendar_days = []
     for day in range(1, days_in_month + 1):
         is_workout = day in workout_days
         calendar_days.append({"day": day, "workout": is_workout})
 
+    # Render the calendar template
     return render_template(
         "calendar.html",
         name=name,
@@ -635,34 +651,29 @@ def display_calendar(name):
 @app.route("/dashboard/calendar/<name>/next", methods=["GET"])
 @flask_login.login_required
 def next_month(name):
-    global user_calendars
-
-    if name in user_calendars:
-        calendar_vis = user_calendars[name]
+    # Instantiate CalendarVisualizer and move to the next month
+    try:
+        calendar_vis = CalendarVisualizer(USER_WORKOUT_DB_PATH, name)
         calendar_vis.next_month()
         return redirect(url_for("display_calendar", name=name))
-
-    return redirect(
-        url_for("dashboard", msg="Please upload your workout data first.", name=name)
-    )
+    except (FileNotFoundError, ValueError) as e:
+        return redirect(
+            url_for("dashboard", msg=f"Error: {e}. Please upload your workout data first.", name=name)
+        )
 
 
 @app.route("/dashboard/calendar/<name>/prev", methods=["GET"])
 @flask_login.login_required
 def prev_month(name):
-    global user_calendars
-
-    if name in user_calendars:
-        calendar_vis = user_calendars[name]
+    # Instantiate CalendarVisualizer and move to the previous month
+    try:
+        calendar_vis = CalendarVisualizer(USER_WORKOUT_DB_PATH, name)
         calendar_vis.prev_month()
         return redirect(url_for("display_calendar", name=name))
-
-    return redirect(
-        url_for("dashboard", msg="Please upload your workout data first.", name=name)
-    )
-
-
-food_data_df = pd.read_csv("./static/food/food_data.csv")
+    except (FileNotFoundError, ValueError) as e:
+        return redirect(
+            url_for("dashboard", msg=f"Error: {e}. Please upload your workout data first.", name=name)
+        )
 
 
 def search_food_calories(food_name):
