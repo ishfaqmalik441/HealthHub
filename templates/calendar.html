@@ -5,228 +5,229 @@ Workout Calendar
 {% endblock %}
 
 {% block content %}
-    <style>
-        /* General Reset */
-        body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: whitesmoke; /* Light background */
-            color: black; /* Text color */
-        }
-
-        h1, h2, h3 {
-            margin: 10px 0;
-        }
-
-        /* Greeting Styling */
-        .box-heading {
-            text-align: center;
-            font-size: 2rem; /* Increased size */
-            font-weight: normal; /* Remove bold styling */
-            color: darkslategray;
-        }
-
-        .box-heading span {
-            color: steelblue; /* Blue color for the username */
-            font-weight: bold;
-        }
-
-        /* Central Box Styling */
-        .center-box {
-            max-width: 800px;
-            margin: 20px auto 50px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            padding: 20px;
-            text-align: center;
-        }
-
-        .month-title {
-            font-size: 2.5rem;
-            font-weight: bold; /* Keep bold styling */
-            margin-top: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            background: linear-gradient(90deg, #FF512F, #DD2476); /* Add gradient effect */
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .year {
-            font-size: 1.5rem;
-            font-weight: 300;
-            color: steelblue;
-        }
-
-        /* Calendar Styling */
-        .calendar-container {
-            margin: 20px auto;
-            max-width: 600px;
-        }
-
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr); 
-            gap: 15px;
-            justify-items: center;
-            margin-top: 20px;
-        }
-
-        .day {
-            width: 40px;
-            height: 40px;
-            line-height: 40px;
-            text-align: center;
-            border-radius: 50%;
-            font-size: 1rem;
-            color: rgb(48, 47, 5);
-            background-color: transparent;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        .day.workout {
-            background-color: #4CAF50;
-            color: white;
-        }
-
-        .day:hover {
-            background-color: #45a049;
-            cursor: pointer;
-        }
-
-        /* Navigation Arrows */
-        .nav-stats-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 30px 0;
-            position: relative;
-        }
-
-        .arrow {
-            font-size: 3rem;
-            color: black;
-            text-decoration: none;
-            font-weight: bold;
-            transition: color 0.3s ease, transform 0.3s ease;
-        }
-
-        .arrow:hover {
-            color: green;
-            transform: scale(1.2);
-        }
-
-        /* Stats Styling */
-        .stats-container {
-            margin-top: 20px;
-            text-align: center;
-        }
-
-        .stat {
-            font-size: 1.2rem;
-            font-weight: normal; /* Remove bold styling */
-            color: black;
-        }
-
-        .stat-value {
-            font-weight: bold;
-            color: #4CAF50;
-        }
-
-        /* Features Section */
-        .features-section {
-            margin-top: 30px;
-            text-align: left;
-        }
-
-        .features-heading {
-            font-size: 1.3rem;
-            font-weight: normal; /* Remove bold styling */
-            color: darkslategrey;
-        }
-
-        .feature-list {
-            margin-top: 10px;
-            padding-left: 20px;
-            list-style-type: '→ '; /* Custom arrow for list items */
-        }
-
-        .feature-list li {
-            font-size: 1rem;
-            margin-bottom: 10px;
-            color: black;
-        }
-
-        /* STAY TUNED Styling */
-        .stay-tuned {
-            text-align: center;
-            font-size: 1.5rem;
-            font-weight: normal; /* Remove bold styling */
-            color: darkslategray;
-            margin-top: 40px;
-            padding-bottom: 20px;
-        }
-
-        /* Flickering Fire Effect */
-        .fire {
-            position: relative;
-            width: 30px;
-            height: 50px;
-            margin-left: 10px;
-        }
-
-        .fire div {
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            border-radius: 50%;
-            animation: flicker 1.5s infinite alternate ease-in-out;
-        }
-
-        .fire .flame1 {
-            width: 30px;
-            height: 50px;
-            background: rgba(255, 69, 0, 0.8);
-            filter: blur(4px);
-            animation-delay: 0s;
-        }
-
-        .fire .flame2 {
-            width: 20px;
-            height: 35px;
-            background: rgba(255, 140, 0, 0.8);
-            filter: blur(3px);
-            animation-delay: 0.3s;
-        }
-
-        .fire .flame3 {
-            width: 10px;
-            height: 20px;
-            background: rgba(255, 215, 0, 0.8);
-            filter: blur(2px);
-            animation-delay: 0.6s;
-        }
-
-        @keyframes flicker {
-            0% {
-                transform: translateX(-50%) scale(1);
-                opacity: 0.9;
+        <style>
+            /* General Reset */
+            body {
+                font-family: 'Arial', sans-serif;
+                margin: 0;
+                padding: 0;
+                background-color: whitesmoke; /* Light background */
+                color: black; /* Text color */
             }
-            50% {
-                transform: translateX(-50%) scale(1.2);
-                opacity: 0.7;
+
+            h1, h2, h3 {
+                margin: 10px 0;
             }
-            100% {
-                transform: translateX(-50%) scale(1);
-                opacity: 0.9;
+
+            /* Greeting Styling */
+            .box-heading {
+                text-align: center;
+                font-size: 2rem; /* Increased size */
+                font-weight: normal; /* Remove bold styling */
+                color: darkslategray;
             }
-        }
-    </style>
+
+            .box-heading span {
+                color: steelblue; /* Blue color for the username */
+                font-weight: bold;
+            }
+
+            /* Central Box Styling */
+            .center-box {
+                max-width: 800px;
+                margin: 20px auto 50px;
+                background: white;
+                border-radius: 10px;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+                padding: 20px;
+                text-align: center;
+            }
+
+            .month-title {
+                font-size: 2.5rem;
+                font-weight: bold; /* Keep bold styling */
+                margin-top: 20px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                gap: 10px;
+                background: linear-gradient(90deg, #FF512F, #DD2476); /* Add gradient effect */
+                -webkit-background-clip: text; /* Vendor-prefixed version */
+                background-clip: text; /* Standard property for compatibility */
+                -webkit-text-fill-color: transparent;
+            }
+
+            .year {
+                font-size: 1.5rem;
+                font-weight: 300;
+                color: steelblue;
+            }
+
+            /* Calendar Styling */
+            .calendar-container {
+                margin: 20px auto;
+                max-width: 600px;
+            }
+
+            .calendar-grid {
+                display: grid;
+                grid-template-columns: repeat(7, 1fr); 
+                gap: 15px;
+                justify-items: center;
+                margin-top: 20px;
+            }
+
+            .day {
+                width: 40px;
+                height: 40px;
+                line-height: 40px;
+                text-align: center;
+                border-radius: 50%;
+                font-size: 1rem;
+                color: rgb(48, 47, 5);
+                background-color: transparent;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            }
+
+            .day.workout {
+                background-color: #4CAF50;
+                color: white;
+            }
+
+            .day:hover {
+                background-color: #45a049;
+                cursor: pointer;
+            }
+
+            /* Navigation Arrows */
+            .nav-stats-container {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin: 30px 0;
+                position: relative;
+            }
+
+            .arrow {
+                font-size: 3rem;
+                color: black;
+                text-decoration: none;
+                font-weight: bold;
+                transition: color 0.3s ease, transform 0.3s ease;
+            }
+
+            .arrow:hover {
+                color: green;
+                transform: scale(1.2);
+            }
+
+            /* Stats Styling */
+            .stats-container {
+                margin-top: 20px;
+                text-align: center;
+            }
+
+            .stat {
+                font-size: 1.2rem;
+                font-weight: normal; /* Remove bold styling */
+                color: black;
+            }
+
+            .stat-value {
+                font-weight: bold;
+                color: #4CAF50;
+            }
+
+            /* Features Section */
+            .features-section {
+                margin-top: 30px;
+                text-align: left;
+            }
+
+            .features-heading {
+                font-size: 1.3rem;
+                font-weight: normal; /* Remove bold styling */
+                color: darkslategrey;
+            }
+
+            .feature-list {
+                margin-top: 10px;
+                padding-left: 20px;
+                list-style-type: '→ '; /* Custom arrow for list items */
+            }
+
+            .feature-list li {
+                font-size: 1rem;
+                margin-bottom: 10px;
+                color: black;
+            }
+
+            /* STAY TUNED Styling */
+            .stay-tuned {
+                text-align: center;
+                font-size: 1.5rem;
+                font-weight: normal; /* Remove bold styling */
+                color: darkslategray;
+                margin-top: 40px;
+                padding-bottom: 20px;
+            }
+
+            /* Flickering Fire Effect */
+            .fire {
+                position: relative;
+                width: 30px;
+                height: 50px;
+                margin-left: 10px;
+            }
+
+            .fire div {
+                position: absolute;
+                bottom: 0;
+                left: 50%;
+                transform: translateX(-50%);
+                border-radius: 50%;
+                animation: flicker 1.5s infinite alternate ease-in-out;
+            }
+
+            .fire .flame1 {
+                width: 30px;
+                height: 50px;
+                background: rgba(255, 69, 0, 0.8);
+                filter: blur(4px);
+                animation-delay: 0s;
+            }
+
+            .fire .flame2 {
+                width: 20px;
+                height: 35px;
+                background: rgba(255, 140, 0, 0.8);
+                filter: blur(3px);
+                animation-delay: 0.3s;
+            }
+
+            .fire .flame3 {
+                width: 10px;
+                height: 20px;
+                background: rgba(255, 215, 0, 0.8);
+                filter: blur(2px);
+                animation-delay: 0.6s;
+            }
+
+            @keyframes flicker {
+                0% {
+                    transform: translateX(-50%) scale(1);
+                    opacity: 0.9;
+                }
+                50% {
+                    transform: translateX(-50%) scale(1.2);
+                    opacity: 0.7;
+                }
+                100% {
+                    transform: translateX(-50%) scale(1);
+                    opacity: 0.9;
+                }
+            }
+        </style>
 
     <!-- Central Box -->
     <div class="center-box">
