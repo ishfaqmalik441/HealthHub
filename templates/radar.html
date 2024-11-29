@@ -4,20 +4,15 @@
 Radat Analysis
 {% endblock %}
 {% block content %}
-<div class="container">
-    <h1>Hello {{name}}!</h1>
-    <h3 style="text-align: center;">Radar Throughout the Month</h3>
-    <div style="text-align: center;">
-        <img src="{{ imgsrc }}" alt="radar_throughout">
-    </div>
-</div>
-<div class="container-fluid">
-    <div class="row vh-100">
-        <!-- Main content section with full-width layout -->
-        <main class="col-12 px-md-4">
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+<div class="container-fluid d-flex flex-column align-items-center justify-content-center" style="min-height: calc(100vh - 80px); padding-top: 15px;">
+    <main class="text-center bg-light p-4 rounded shadow-lg" style="max-width: 800px; font-family: 'Roboto', sans-serif;">
+        <h1 class="mb-4" style="color: #000000;">Workout Radar Chart for <span style="color: #007bff;">{{ name }}</span></h1>
+        <div class="border-bottom mb-4">
+            <h4 style="color: #3f4347;">A visualization of the muscle groups targeted in your workouts in the period is given below:</h4>
+            <div style="text-align: center;" class="my-3">
+                <img src="{{ imgsrc }}" alt="radar_throughout" class="img-fluid rounded"">
             </div>
-        </main>
-    </div>
+        </div>
+    </main>
 </div>
 {% endblock %}

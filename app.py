@@ -342,11 +342,11 @@ def bmi(name):
             sheet_name=["workout_data_%s" % user.username],
         )
         user_data = user_data["workout_data_%s" % user.username]
-        user_data["height"] = user_data["height"][0]
+        user_data["height_cm"] = user_data["height_cm"][0]
 
         user_data["Date"] = user_data["Date"].dt.date
         user_data["BMI"] = calculate_bmi(
-            user_data["weight_record"], user_data["height"]
+            user_data["weight_record_kg"], user_data["height_cm"]
         )
         healthy_bmi_max = 24.9
         healthy_bmi_min = 18.5
@@ -480,12 +480,12 @@ def radar(name):
 
     def reformatData(data_table):
         new_list = [
-            data_table[data_table["Exercise_type"] == "Chest"]["weight_record"].sum(),
-            data_table[data_table["Exercise_type"] == "Back"]["weight_record"].sum(),
-            data_table[data_table["Exercise_type"] == "Arms"]["weight_record"].sum(),
-            data_table[data_table["Exercise_type"] == "Core"]["weight_record"].sum(),
-            data_table[data_table["Exercise_type"] == "Legs"]["weight_record"].sum(),
-            data_table[data_table["Exercise_type"] == "Chest"]["weight_record"].sum(),
+            data_table[data_table["Exercise_type"] == "Chest"]["weight_record_kg"].sum(),
+            data_table[data_table["Exercise_type"] == "Back"]["weight_record_kg"].sum(),
+            data_table[data_table["Exercise_type"] == "Arms"]["weight_record_kg"].sum(),
+            data_table[data_table["Exercise_type"] == "Core"]["weight_record_kg"].sum(),
+            data_table[data_table["Exercise_type"] == "Legs"]["weight_record_kg"].sum(),
+            data_table[data_table["Exercise_type"] == "Chest"]["weight_record_kg"].sum(),
         ]
 
         return new_list

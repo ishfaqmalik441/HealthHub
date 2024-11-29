@@ -77,10 +77,12 @@ Here is the project's file structure, along with a description of each component
    - Upload and manage diet plans using an Excel template.
    - View detailed nutritional information for meals.
 
-4. **BMI Calculator**:
-   - Calculate Body Mass Index (BMI) by entering height and weight.
+4. **Body Mass Index (BMI) Analysis**:
+   - Gain a comprehensive analysis of your body mass index (BMI) trends over time. 
+   - Visualize how your weight and health status have evolved. 
+   - Gain valuable insights into BMI changes, categorizes weight status (underweight, normal, overweight, or obese), and important statistics related to your BMI.
 
-5. **Interactive Dashboard**:
+5. **Interactive User-Friendly Dashboard**:
    - Central hub to monitor fitness progress, access diet plans, and upload new data.
 
 6. **Data Visualization**:
