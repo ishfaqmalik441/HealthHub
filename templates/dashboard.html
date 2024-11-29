@@ -81,8 +81,8 @@ Dashboard
                     <div class="col-md-3 text-center mb-4">
                         <div class="border p-3 rounded shadow-sm" style="background-color: #f8f9fa;">
                             <img src="{{ url_for('static', filename='img/radar.jpg') }}" alt="Radar Icon" class="img-fluid mb-3">
-                            <h4 style="color: #044488;">Radar</h4>
-                            <p style="color: #495057;">Radar displays the distribution of your workouts.</p>
+                            <h4 style="color: #044488;">Workout Radar</h4>
+                            <p style="color: #495057;">See the distribution of your workouts across different body groups with our Radar feature. This helps you identify strengths and areas to improve for a more balanced fitness routine.</p>
                             <a href="/dashboard/radar/{{ current_user.username }}" class="btn btn-primary">Go to Radar</a>
                         </div>
                     </div>
@@ -106,7 +106,7 @@ Dashboard
                         <div class="border p-3 rounded shadow-sm" style="background-color: #f8f9fa;">
                             <img src="{{ url_for('static', filename='img/workout_calendar.png') }}" alt="Workout Calendar" class="img-fluid mb-3" style="border-radius: 10px;">
                             <h4 style="color: #044488;">Workout Calendar</h4>
-                            <p style="color: #495057; font-size: 15px;">View your workout schedule and track your progress on a monthly calendar.</p>
+                            <p style="color: #495057; font-size: 15px;">Plan and track your workout routines effortlessly with our interactive calendar. Visualize your progress, maintain consistency, and break your fitness goals into achievable milestones.</p>
                             <a href="/dashboard/calendar/{{ current_user.username }}" class="btn btn-primary">View your workout Calendar</a>
                         </div>
                     </div>
