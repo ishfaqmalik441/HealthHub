@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %}
+BMI Calculator
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row vh-100">
+        <!-- Main content section with full-width layout -->
+        <main class="col-12 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Hello {{name}}! You can calculate your BMI below:</h1>
+            </div>
+            <div style="font-family: Arial, sans-serif; background-color: #f0f0f0; width: 400px; margin: 50px auto; padding: 20px; background-color: white; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+                <h1 style="text-align: center; color: #3498db; font-weight: bold;">BMI Calculator</h1>
+                
+                <form action="" method="post">
+                    <label for="weight" style="display: block; margin-bottom: 10px;">Weight (kg)</label>
+                    <input type="number" id="weight" name="weight" step="0.1" required style="width: 100%; height: 40px; margin-bottom: 20px; padding: 10px; font-size: 16px;">
+
+                    <label for="height" style="display: block; margin-bottom: 10px;">Height (cm)</label>
+                    <input type="number" id="height" name="height" step="0.01" required style="width: 100%; height: 40px; margin-bottom: 20px; padding: 10px; font-size: 16px;">
+
+                    <button type="submit" style="width: 100%; height: 40px; background-color: #3498db; color: white; border: none; cursor: pointer; font-size: 16px;">
+                        Calculate BMI
+                    </button>
+                </form>
+
+                {% if bmi %}
+                    <div style="margin-top: 20px;">
+                        <p style="font-size: 24px; font-weight: bold; text-align: center">
+                            Your BMI is {{ bmi }}{% if category %} ({{ category }}){% endif %}
+                        </p>
+                        {% if category == 'Underweight' %}
+                            <p>
+                                According to your BMI you are <a style="color: red; font-weight: bold;">underweight</a>, in order to achieve a healthy bmi your body weight should
+                                be in the range of {{min_weight}}kg - {{max_weight}}kg.
+                                <br></br>
+                                Below are some nutrition recommendations from us to increase your body weight in a healthy manner:
+                                <ul>
+                                    {% for item in nutrition %}
+                                    <li>{{item}}</li>
+                                    {% endfor %}
+                                </ul>
+                                The key is to focus on nutrient-dense foods while increasing overall calorie intake. Aim to add 250-500 extra calories per day
+                            </p>
+                        {% elif category == 'Normal' %}
+                            <p>
+                                According to your BMI you are <a style="color: green; font-weight: bold;">healthy</a>, in order to maintain a healthy bmi your body weight should
+                                stay in the range of {{min_weight}}kg - {{max_weight}}kg.
+                                <br></br>
+                                Below are some nutrition recommendations from us to maintain your current body weight in a healthy manner:
+                                <ul>
+                                    {% for item in nutrition %}
+                                    <li>{{item}}</li>
+                                    {% endfor %}
+                                </ul>
+                                The key is in eating regular meals and staying hydrated with 2-3 litres of water throughout the day. Get enough sleep of 7-9 hours every night and include 2-3 days of strength training in your exercises to maintain muscle mass
+                            </p>
+                        {% elif category == 'Overweight' %}
+                            <p>
+                                According to your BMI you are <a style="color: red; font-weight: bold;">overweight</a>, in order to achieve a healthy bmi your body weight should
+                                be in the range of {{min_weight}}kg - {{max_weight}}kg.
+                                <br></br>
+                                Below are some nutrition recommendations from us to decrease your current body weight in a healthy manner:
+                                <ul>
+                                    {% for item in nutrition %}
+                                    <li>{{item}}</li>
+                                    {% endfor %}
+                                </ul>
+                                The key is in staying hydrated with 2-3 litres of water throughout the day and avoiding sugary drinks. Get enough sleep of 7-9 hours every night and include 2-3 days of strength or cardio training in your exercises to decrease fat mass
+                            </p>
+                        {% else %}
+                            <p>
+                                According to your BMI you are <a style="color: red; font-weight: bold;">obese</a>, in order to achieve a healthy bmi your body weight should
+                                be in the range of {{min_weight}}kg - {{max_weight}}kg.
+                                <br></br>
+                                Below are some nutrition recommendations from us to decrease your current body weight in a healthy manner:
+                                <ul>
+                                    {% for item in nutrition %}
+                                    <li>{{item}}</li>
+                                    {% endfor %}
+                                </ul>
+                                The key is in staying hydrated with 2-3 litres of water throughout the day and absolutely avoid sugary drinks! Get enough sleep of 7-9 hours every night and include 5-6 days of strength or cardio training in your exercises to decrease fat mass
+                            </p>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </main>
+    </div>
+</div>
+{% endblock %}
