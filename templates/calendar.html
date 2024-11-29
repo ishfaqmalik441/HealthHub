@@ -11,7 +11,7 @@ Workout Calendar
             font-family: 'Arial', sans-serif;
             margin: 0;
             padding: 0;
-            background-color: whitesmoke; /* Dark background */
+            background-color: whitesmoke; /* Light background */
             color: black; /* Text color */
         }
 
@@ -19,85 +19,41 @@ Workout Calendar
             margin: 10px 0;
         }
 
-        /* Navbar Styling */
-        .navbar {
-            background-color: #222; /* Dark background for navbar */
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px 20px;
-            position: fixed;
-            top: 0;
-            width: 100%;
-            z-index: 1000;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+        /* Greeting Styling */
+        .box-heading {
+            text-align: center;
+            font-size: 2rem; /* Increased size */
+            font-weight: normal; /* Remove bold styling */
+            color: darkslategray;
         }
 
-        .nav-left {
-            display: flex;
-            gap: 20px;
+        .box-heading span {
+            color: steelblue; /* Blue color for the username */
+            font-weight: bold;
         }
 
-        .nav-left a {
-            color: white;
-            text-decoration: none;
-            font-size: 1rem;
-            transition: color 0.3s ease;
-        }
-
-        .nav-left a:hover {
-            color: #4CAF50; /* Green on hover */
-        }
-
-        .nav-right {
-            display: flex;
-            gap: 15px;
-        }
-
-        .nav-right a {
-            color: white;
-            text-decoration: none;
-            font-size: 1rem;
-            transition: color 0.3s ease;
-        }
-
-        .nav-right a:hover {
-            color: #4CAF50; /* Green on hover */
-        }
-
-        /* Menu Button Below Navbar */
-        .menu-button {
-            color: white;
-            font-size: 1rem;
-            background-color: #333;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 3px;
-            cursor: pointer;
-            display: block;
-            margin-top: 70px; /* Lower the button for better visibility */
-            margin-left: 20px; /* Align it to the left */
-        }
-
-        .menu-button:hover {
-            background-color: #444;
-        }
-
-       
-        .greeting {
-            margin-top: 150px; 
+        /* Central Box Styling */
+        .center-box {
+            max-width: 800px;
+            margin: 20px auto 50px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            padding: 20px;
             text-align: center;
         }
 
         .month-title {
             font-size: 2.5rem;
-            font-weight: bold;
-            color: darkslategrey;
+            font-weight: bold; /* Keep bold styling */
             margin-top: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
             gap: 10px;
+            background: linear-gradient(90deg, #FF512F, #DD2476); /* Add gradient effect */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .year {
@@ -106,7 +62,7 @@ Workout Calendar
             color: steelblue;
         }
 
-    
+        /* Calendar Styling */
         .calendar-container {
             margin: 20px auto;
             max-width: 600px;
@@ -129,57 +85,90 @@ Workout Calendar
             font-size: 1rem;
             color: rgb(48, 47, 5);
             background-color: transparent;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
         .day.workout {
             background-color: #4CAF50;
-            color: black;
+            color: white;
         }
 
         .day:hover {
-            background-color: #45a049; 
+            background-color: #45a049;
             cursor: pointer;
         }
 
-       
+        /* Navigation Arrows */
         .nav-stats-container {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 20px;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
+            margin: 30px 0;
             position: relative;
         }
 
         .arrow {
-            font-size: 2rem;
+            font-size: 3rem;
             color: black;
             text-decoration: none;
-            transition: color 0.3s ease;
+            font-weight: bold;
+            transition: color 0.3s ease, transform 0.3s ease;
         }
 
         .arrow:hover {
-            color: green; /* Green on hover */
+            color: green;
+            transform: scale(1.2);
         }
 
+        /* Stats Styling */
         .stats-container {
-            position: absolute;
-            top: 50%; /* Center vertically within the container */
-            left: 50%; /* Center horizontally */
-            transform: translate(-50%, -50%);
+            margin-top: 20px;
             text-align: center;
         }
 
         .stat {
             font-size: 1.2rem;
+            font-weight: normal; /* Remove bold styling */
             color: black;
         }
 
         .stat-value {
             font-weight: bold;
-            color: #4CAF50; /* Green for highlights */
+            color: #4CAF50;
+        }
+
+        /* Features Section */
+        .features-section {
+            margin-top: 30px;
+            text-align: left;
+        }
+
+        .features-heading {
+            font-size: 1.3rem;
+            font-weight: normal; /* Remove bold styling */
+            color: darkslategrey;
+        }
+
+        .feature-list {
+            margin-top: 10px;
+            padding-left: 20px;
+            list-style-type: '→ '; /* Custom arrow for list items */
+        }
+
+        .feature-list li {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            color: black;
+        }
+
+        /* STAY TUNED Styling */
+        .stay-tuned {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: normal; /* Remove bold styling */
+            color: darkslategray;
+            margin-top: 40px;
+            padding-bottom: 20px;
         }
 
         /* Flickering Fire Effect */
@@ -202,7 +191,7 @@ Workout Calendar
         .fire .flame1 {
             width: 30px;
             height: 50px;
-            background: rgba(255, 69, 0, 0.8); /* Bright orange-red */
+            background: rgba(255, 69, 0, 0.8);
             filter: blur(4px);
             animation-delay: 0s;
         }
@@ -210,7 +199,7 @@ Workout Calendar
         .fire .flame2 {
             width: 20px;
             height: 35px;
-            background: rgba(255, 140, 0, 0.8); /* Bright orange */
+            background: rgba(255, 140, 0, 0.8);
             filter: blur(3px);
             animation-delay: 0.3s;
         }
@@ -218,7 +207,7 @@ Workout Calendar
         .fire .flame3 {
             width: 10px;
             height: 20px;
-            background: rgba(255, 215, 0, 0.8); /* Bright yellow */
+            background: rgba(255, 215, 0, 0.8);
             filter: blur(2px);
             animation-delay: 0.6s;
         }
@@ -237,46 +226,64 @@ Workout Calendar
                 opacity: 0.9;
             }
         }
-
-
     </style>
-</head>
-<body>
 
-
-    <!-- Month Title -->
-    <div class="month-title">
-        {{ current_month }}
-        {% if is_current_month %}
-        <div class="fire">
-            <div class="flame1"></div>
-            <div class="flame2"></div>
-            <div class="flame3"></div>
+    <!-- Central Box -->
+    <div class="center-box">
+        <!-- Box Heading -->
+        <div class="box-heading">
+            Workout calendar for <span>{{ name }}</span>
         </div>
-        {% endif %}
-        <span class="year">{{ current_year }}</span>
-    </div>
 
-    <!-- Calendar -->
-    <div class="calendar-container">
-        <div class="calendar-grid">
-            {% for day in calendar_days %}
-                <div class="day {% if day.workout %}workout{% endif %}">
-                    {{ day.day }}
-                </div>
-            {% endfor %}
+        <!-- Month Title -->
+        <div class="month-title">
+            {{ current_month }}
+            {% if is_current_month %}
+            <div class="fire">
+                <div class="flame1"></div>
+                <div class="flame2"></div>
+                <div class="flame3"></div>
+            </div>
+            {% endif %}
+            <span class="year">{{ current_year }}</span>
         </div>
-    </div>
 
-    <!-- Navigation Arrows and Stats -->
-    <div class="nav-stats-container">
-        <a class="arrow" href="{{ url_for('prev_month', name=name) }}">&larr;</a>
+        <!-- Calendar -->
+        <div class="calendar-container">
+            <div class="calendar-grid">
+                {% for day in calendar_days %}
+                    <div class="day {% if day.workout %}workout{% endif %}">
+                        {{ day.day }}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Stats -->
         <div class="stats-container">
             <div class="stat">Total Workouts This Month: <span class="stat-value">{{ total_workouts }}</span></div>
             <div class="stat">Longest Workout Streak: <span class="stat-value">{{ longest_streak }}</span></div>
         </div>
+
+        <!-- Features Section -->
+        <div class="features-section">
+            <div class="features-heading">Features Coming in the Next Version:</div>
+            <ul class="feature-list">
+                <li>Planned tracking of all your workouts</li>
+                <li>Customised daily routine integrated with BMI checks and diet plans</li>
+                <li>Reminder notifications to notify you on your next workout</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Navigation Arrows -->
+    <div class="nav-stats-container">
+        <a class="arrow" href="{{ url_for('prev_month', name=name) }}">&larr;</a>
         <a class="arrow" href="{{ url_for('next_month', name=name) }}">&rarr;</a>
     </div>
 
-    <!-- Footer -->
-    {% endblock %}
+    <!-- STAY TUNED -->
+    <div class="stay-tuned">
+        STAY TUNED
+    </div>
+{% endblock %}
