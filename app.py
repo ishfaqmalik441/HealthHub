@@ -691,12 +691,11 @@ def calculate_bmr(weight, height, age, gender, activity_level):
 
 def process_file(file):
     try:
-        # Try reading as CSV
-        try:
+        
+        if file.filename.endswith(".csv"):
             df = pd.read_csv(file)
-        except pd.errors.ParserError:
-            # If reading as CSV fails, try reading as Excel
-            file.seek(0)  # Reset file pointer
+        # Attempt to read the file as Excel if not CSV
+        elif file.filename.endswith(".xls") or file.filename.endswith(".xlsx"):
             df = pd.read_excel(file)
 
         if (
@@ -718,7 +717,7 @@ def process_file(file):
         result_df = df[["Date", "Food", "Calories", "TotalWeight"]]
         return result_df
     except:
-        return None
+        pass
 
 
 def generate_comparison_chart(
