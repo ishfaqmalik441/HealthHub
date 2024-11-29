@@ -27,14 +27,14 @@ Dashboard
             </div>
             {% endif %}
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                <h1 class="h2" style="color: #009b77;">Hello {{ name }}!</h1>
+                <h1 class="h2" style="color: #009b77;">Welcome to your HealthHub Dashboard {{ name }}!</h1>
             </div>
 
             <!-- File upload section -->
             <div class="border p-4 rounded shadow-sm mb-4" style="background-color: #f8f9fa;">
                 <h4 style="color: #3f4347;">Upload your latest CSV or Excel file containing your health and workout data below:</h4>
                 <br>
-                <div class="d-flex align-items-center gap-3">
+                <div class="align-items-center gap-3">
                     <!-- Upload Form -->
                     <form action="/upload/{{ current_user.username }}" method="POST" enctype="multipart/form-data" class="d-flex align-items-center gap-2">
                         <input type="file" id="fileUploadButton" name="file" accept=".csv, .xlsx" style="border: 1px solid #ccc; border-radius: 5px; padding: 8px;">
@@ -42,15 +42,15 @@ Dashboard
                     </form>
             
                     <!-- Download Buttons -->
-                    <div class="d-flex gap-2">
-                        <a href="{{ url_for('download_file', template_name='template_1.xlsx') }}" class="btn btn-primary">
-                            Template 1
+                    <div class="gap-2" style="margin-top: 10px; align-items: center; flex-direction: row; display: flex;">
+                        <div style="margin-top: 15px;">
+                        <p style="font-size: 17px;">Downloadable templates to upload your excel file in the correct format: </p>
+                        </div>
+                        <a href="{{ url_for('download_file', template_name='General.xlsx') }}" class="btn btn-primary">
+                            BMI Analysis, Radar, Calendar Excel File
                         </a>
                         <a href="{{ url_for('download_file', template_name='Dietplan.xlsx') }}" class="btn btn-primary">
                             Diet Plan Excel File
-                        </a>
-                        <a href="{{ url_for('download_file', template_name='template_3.xlsx') }}" class="btn btn-primary">
-                            Template 3
                         </a>
                     </div>
                 </div>
@@ -61,12 +61,12 @@ Dashboard
                     <!-- BMI Tool -->
                     <div class="col-md-3 text-center mb-4">
                         <div class="border p-3 rounded shadow-sm" style="background-color: #f8f9fa;">
-                            <img src="https://www.tataaia.com/content/dam/tataaialifeinsurancecompanylimited/calculator/life-planning-tools/bmi-calculator/banner-image-bmi.png" alt="BMI Icon" class="img-fluid mb-3">
-                            <h4 style="color: #044488;">Body Mass Index (BMI) Analysis Tool</h4>
-                            <p style="font-size: 15px; color: #495057;">This tool provides a comprehensive analysis of your body mass 
-                            index (BMI) trends over time. You can visualize how 
-                            your weight and health status have evolved. The platform offers valuable insights into BMI changes,
-                            categorizes weight status (underweight, normal, overweight, or obese), and presents important 
+                            <img src="{{ url_for('static', filename='img/bmi.png') }}" alt="BMI Icon" class="img-fluid mb-3">
+                            <h4 style="color: #044488;">Body Mass Index (BMI) Analysis</h4>
+                            <p style="font-size: 15px; color: #495057;">Gain a comprehensive analysis of your body mass 
+                            index (BMI) trends over time. Visualize how your weight and health status have evolved. Gain valuable insights 
+                            into BMI changes,
+                            categorizes weight status (underweight, normal, overweight, or obese), and important 
                             statistics related to your BMI.</p>
                             <a href="/dashboard/bmi/{{ current_user.username }}" class="btn btn-primary">Analyse your BMI</a>
                         </div>
@@ -76,7 +76,7 @@ Dashboard
                     <div class="col-md-3 text-center mb-4">
                         <div class="border p-3 rounded shadow-sm" style="background-color: #f8f9fa;">
                             <img src="{{ url_for('static', filename='img/rader.jpg') }}" alt="Radar Icon" class="img-fluid mb-3">
-                            <h5 style="color: #044488;">Radar</h5>
+                            <h4 style="color: #044488;">Radar</h4>
                             <p style="color: #495057;">Radar displays the distribution of your workouts.</p>
                             <a href="/dashboard/radar/{{ current_user.username }}" class="btn btn-primary">Go to Radar</a>
                         </div>
@@ -86,8 +86,8 @@ Dashboard
                     <div class="col-md-3 text-center mb-4">
                         <div class="border p-3 rounded shadow-sm" style="background-color: #f8f9fa;">
                             <img src="{{ url_for('static', filename='img/diet.png') }}" alt="Diet Icon" class="img-fluid mb-3">
-                            <h5 style="color: #044488;">Diet Plan</h5>
-                            <p style="color: #495057;">
+                            <h4 style="color: #044488;">Diet Plan</h4>
+                            <p style="color: #495057; font-size: 15px;">
                                 *Upload your file in the Dietplan page*
                                 Get a personalized diet plan tailored to your fitness goals.
                                 We extract most of the common foods from the api and store as csv files. After the user submits his recorded diet, we calculate the total number of calories he has consumed and output a comparison chart to compare his diet with the target diet
@@ -100,9 +100,9 @@ Dashboard
                     <div class="col-md-3 text-center mb-4">
                         <div class="border p-3 rounded shadow-sm" style="background-color: #f8f9fa;">
                             <img src="{{ url_for('static', filename='img/workout_calendar.png') }}" alt="Workout Calendar" class="img-fluid mb-3" style="border-radius: 10px;">
-                            <h5 style="color: #044488;">Workout Calendar</h5>
-                            <p style="color: #495057;">View your workout schedule and track your progress on a monthly calendar.</p>
-                            <a href="/dashboard/calendar/{{ current_user.username }}" class="btn btn-primary">Go to Calendar</a>
+                            <h4 style="color: #044488;">Workout Calendar</h4>
+                            <p style="color: #495057; font-size: 15px;">View your workout schedule and track your progress on a monthly calendar.</p>
+                            <a href="/dashboard/calendar/{{ current_user.username }}" class="btn btn-primary">View your workout Calendar</a>
                         </div>
                     </div>
                 </div>
