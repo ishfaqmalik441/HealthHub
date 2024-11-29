@@ -16,7 +16,6 @@ import matplotlib.pyplot as plt
 import openpyxl
 from calendar_visualizer import CalendarVisualizer
 import matplotlib
-
 matplotlib.use("Agg")
 from flask import Flask, render_template, request, redirect, url_for, send_file
 import os
@@ -675,6 +674,7 @@ def prev_month(name):
             url_for("dashboard", msg=f"Error: {e}. Please upload your workout data first.", name=name)
         )
 
+food_data_df = pd.read_csv('./static/food/food_data.csv')
 
 def search_food_calories(food_name):
     food_entry = food_data_df[
