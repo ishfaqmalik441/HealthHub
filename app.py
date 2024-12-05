@@ -448,79 +448,88 @@ def bmi(name):
 @flask_login.login_required
 def radar(name):
     user = flask_login.current_user
-    user_data = pd.read_excel(
-        "static/user_workout_DB/Users.xlsx",
-        sheet_name=["workout_data_%s" % user.username],
-    )
-    user_data = user_data["workout_data_%s" % user.username]
+    try:
+        # accessing the user data
+        user_data = pd.read_excel(
+            "static/user_workout_DB/Users.xlsx",
+            sheet_name=["workout_data_%s" % user.username],
+        )
+        user_data = user_data["workout_data_%s" % user.username]
 
-    # shared variables
-    workout_cat = ["Chest", "Back", "Arms", "Core", "Legs"]
-    theta = np.linspace(0, 2 * np.pi, len(workout_cat) + 1, endpoint=True)
+        # establish the muscle groups
+        workout_cat = ["Chest", "Back", "Arms", "Core", "Legs"]
+        theta = np.linspace(0, 2 * np.pi, len(workout_cat) + 1, endpoint=True)
 
-    def reformatData(data_table):
-        new_list = [
-            data_table[data_table["Exercise_type"] == "Chest"]["weight_record_kg"].sum(),
-            data_table[data_table["Exercise_type"] == "Back"]["weight_record_kg"].sum(),
-            data_table[data_table["Exercise_type"] == "Arms"]["weight_record_kg"].sum(),
-            data_table[data_table["Exercise_type"] == "Core"]["weight_record_kg"].sum(),
-            data_table[data_table["Exercise_type"] == "Legs"]["weight_record_kg"].sum(),
-            data_table[data_table["Exercise_type"] == "Chest"]["weight_record_kg"].sum(),
-        ]
+        # function to help reformattign the data from the pandas dataframe to a list, ready for radar plotting
+        def reformatData(data_table):
+            new_list = [
+                data_table[data_table["Exercise_type"] == "Chest"]["weight_record_kg"].sum(),
+                data_table[data_table["Exercise_type"] == "Back"]["weight_record_kg"].sum(),
+                data_table[data_table["Exercise_type"] == "Arms"]["weight_record_kg"].sum(),
+                data_table[data_table["Exercise_type"] == "Core"]["weight_record_kg"].sum(),
+                data_table[data_table["Exercise_type"] == "Legs"]["weight_record_kg"].sum(),
+                data_table[data_table["Exercise_type"] == "Chest"]["weight_record_kg"].sum(),
+            ]
 
-        return new_list
+            return new_list
 
-    def dataByTime(table, end, start):
-        table["Date"] = pd.to_datetime(table["Date"])
-        return table[(table["Date"] <= end) & (table["Date"] >= start)]
+        # function to filter data based on time period
+        def dataByTime(table, end, start):
+            table["Date"] = pd.to_datetime(table["Date"])
+            return table[(table["Date"] <= end) & (table["Date"] >= start)]
 
-    today = pd.to_datetime(datetime.today())
-    this_week_data = dataByTime(user_data, today, today - timedelta(days=7))
-    last_two_weeks_data = dataByTime(user_data, today, today - timedelta(days=14))
-    last_four_weeks_data = dataByTime(user_data, today, today - timedelta(days=28))
+        # fetch data based on 3 time periods, this week, last 2 weeks, and last 4 weeks
+        today = pd.to_datetime(datetime.today())
+        this_week_data = dataByTime(user_data, today, today - timedelta(days=7))
+        last_two_weeks_data = dataByTime(user_data, today, today - timedelta(days=14))
+        last_four_weeks_data = dataByTime(user_data, today, today - timedelta(days=28))
 
-    thisWeek = reformatData(this_week_data)
-    lastTwoWeeks = reformatData(last_two_weeks_data)
-    lastFourWeeks = reformatData(last_four_weeks_data)
+        # reformat the data
+        thisWeek = reformatData(this_week_data)
+        lastTwoWeeks = reformatData(last_two_weeks_data)
+        lastFourWeeks = reformatData(last_four_weeks_data)
 
-    # plot data
-    fig = Figure(figsize=[11, 6], facecolor="white")
-    radar = fig.subplots(subplot_kw={"projection": "polar"})
-    radar.set_facecolor("white")
+        # plot data
+        fig = Figure(figsize=[11, 6], facecolor="white")
+        radar = fig.subplots(subplot_kw={"projection": "polar"})
+        
+        # cosmetics adjustments
+        radar.set_facecolor("white")
+        for spine in radar.spines.values():
+            spine.set_color("black")
+            spine.set_linewidth(1)
+        radar.xaxis.grid(color="black", linestyle="-", linewidth=2)
+        radar.yaxis.grid(color="black", linestyle="-", linewidth=2)
 
-    for spine in radar.spines.values():
-        spine.set_color("black")
-        spine.set_linewidth(1)
+        # plot Last 4 Weeks
+        radar.plot(theta, lastFourWeeks, color="#D4EBF8", linewidth=4, label="Last 4 Weeks")
+        # plot Last 2 Weeks
+        radar.plot(theta, lastTwoWeeks, color="#608BC1", linewidth=4, label="Last 2 Weeks")
+        # plot This Week
+        radar.plot(theta, thisWeek, color="#0A3981", linewidth=4, label="This Week")
 
-    radar.xaxis.grid(color="black", linestyle="-", linewidth=2)
-    radar.yaxis.grid(color="black", linestyle="-", linewidth=2)
+        # adjust ticks
+        radar.set_xticks(theta[:-1])
+        radar.set_xticklabels(workout_cat, color="black")
 
-    # plot Last 4 Weeks
-    radar.plot(theta, lastFourWeeks, color="#D4EBF8", linewidth=4, label="Last 4 Weeks")
-    # plot Last 2 Weeks
-    radar.plot(theta, lastTwoWeeks, color="#608BC1", linewidth=4, label="Last 2 Weeks")
-    # plot This Week
-    radar.plot(theta, thisWeek, color="#0A3981", linewidth=4, label="This Week")
+        # include legend
+        radar.legend(loc="upper right", bbox_to_anchor=(1.2, 1.2))
 
-    # adjust ticks
-    radar.set_xticks(theta[:-1])
-    radar.set_xticklabels(workout_cat, color="black")
+        fig.tight_layout()
 
-    # include legend
-    radar.legend(loc="upper right", bbox_to_anchor=(1.2, 1.2))
+        # convert plot to PNG image
+        buf = BytesIO()
+        FigureCanvasAgg(fig).print_png(buf)
 
-    fig.tight_layout()
+        # encode PNG image to base64 string
+        buf_str = "data:image/png;base64,"
+        buf_str += base64.b64encode(buf.getvalue()).decode("utf8")
 
-    # Convert plot to PNG image
-    buf = BytesIO()
-    FigureCanvasAgg(fig).print_png(buf)
-
-    # Encode PNG image to base64 string
-    buf_str = "data:image/png;base64,"
-    buf_str += base64.b64encode(buf.getvalue()).decode("utf8")
-
-    # Return the image and title in the template
-    return render_template("radar.html", imgsrc=buf_str, name=name)
+        # return the image and name in the template
+        return render_template("radar.html", imgsrc=buf_str, name=name)
+    # handle in case there is no data uploaded
+    except Exception as e:
+        return redirect(url_for("dashboard", name=name, msg="Sheet not found"))
 
 
 def calculate_longest_streak(workout_days):
