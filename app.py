@@ -22,7 +22,7 @@ import os
 
 user_calendars = {}
 app = Flask(__name__)
-app.secret_key = "9773e89f69e69285cf11c10cbc44a37945f6abbc5d78d5e20c2b1b0f12d75ab7"  # we need to change it
+app.secret_key = "9773e89f69e69285cf11c10cbc44a37945f6abbc5d78d5e20c2b1b0f12d75ab7"  
 
 # Make the uploads folder
 upload_folder = "uploads"
@@ -44,13 +44,7 @@ login_manager.init_app(app)
 global USER_CREDENTIALS, USER_PREDICTIONS
 USER_CREDENTIALS = "static/users/credentials.json"
 
-# # API URL
-# TODAY = datetime.date.today()
-# ONEYEARAGO = TODAY - datetime.timedelta(days=365)
-# URL_BASE = "https://api.polygon.io/v2/aggs/ticker/MYTICKER/range/1/day/%s/%s"%(ONEYEARAGO, TODAY)
 
-
-# it must be here for maintain user session after logged in
 @login_manager.user_loader
 def load_user(userid):
     user_json = pd.read_json(USER_CREDENTIALS).get(userid)
@@ -70,20 +64,11 @@ def signup():
         password = request.form.get("password")
         email = request.form.get("email")
         password_hash = sha256(password.encode("utf-8")).hexdigest()
-
-        # check if the user already exists
-        # for simplicity, we use a JSON to keep track of all registered users for now
-        # user_existing = pd.read_json(USER_CREDENTIALS).T
         user_existing = pd.read_json(USER_CREDENTIALS).T
-        # xxx.t --> is to exchange col and row
 
         existing_usernames = user_existing["username"].values
-        # if exists, refresh this page with an error message
-        # if username in user_existing['username']:
         if username in existing_usernames:
-            # x in existing_usernames(['x', 'y', 'z']) --> true, x is inside
             return render_template("signup.html", msg="username")
-        # if not, go ahead and put it to the JSON (append)
         user_series = pd.Series(
             dict(username=username, password=password_hash, email=email)
         )
@@ -96,28 +81,23 @@ def signup():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST" and "login" in request.form:
-        # Get form data
-        username = request.form.get("username")  # Use .get() to avoid KeyErrors
+
+        username = request.form.get("username")  
         password = request.form.get("password")
 
-        # Hash username and password
         userid = sha256(username.encode("utf-8")).hexdigest()
         password_hash = sha256(password.encode("utf-8")).hexdigest()
 
-        # Load users.json
         with open(USER_CREDENTIALS, "r") as file:
-            users = json.load(file)  # Load JSON data as a dictionary
+            users = json.load(file) 
 
-        # Check if user exists
         user_json = users.get(userid)
-        if user_json is None:  # If user does not exist
+        if user_json is None:  
             return render_template("login.html", msg="notexist")
 
-        # Check if password matches
         if user_json["password"] != password_hash:
             return render_template("login.html", msg="mismatch")
 
-        # Login the user
         user = User(user_json["username"], user_json["password"], user_json["email"])
         flask_login.login_user(user)
         return redirect(
@@ -800,10 +780,7 @@ def calorie_calculator(name):
                 daily_actual_calories = process_file(uploaded_file)
 
                 if daily_actual_calories is None or daily_actual_calories.empty:
-                    return (
-                        "Error processing file. The DataFrame is empty or invalid.",
-                        400,
-                    )
+                    return None
 
                 daily_actual_calories_unique = daily_actual_calories[
                     ["Date", "TotalWeight"]
