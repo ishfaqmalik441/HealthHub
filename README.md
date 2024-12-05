@@ -88,8 +88,11 @@ Here is the project's file structure, along with a description of each component
 5. **Interactive User-Friendly Dashboard**:
    - Central hub to monitor fitness progress, access diet plans, and upload new data.
 
-6. **Data Visualization**:
-   - Radar charts and other visualizations to track fitness and diet adherence.
+6. **Radar Chart Data Visualization**:
+   - Takes the user's workout records and plot the workout volumes based on muscle group to gain understanding of their past workouts' concentration.
+   - The chart visualized the data of different time periods i.e., this week, last 2 weeeks, and last 4 weeks to identify in case there is a change in workout plans.
+   - Gain an overall insight on their past training concentration and use it for future training plan considerations.
+   - To do that, we use the user's workout data that is grouped by 5 muscle groups and aggregate them based on the specified time period to be then plotted onto the radar chart.
 
 7. **Error Handling**:
    - Displays clear error messages for invalid uploads or missing data.
