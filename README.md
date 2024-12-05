@@ -30,7 +30,8 @@ Here is the project's file structure, along with a description of each component
 ├── models.py                  # Defines data models for users and workouts
 ├── static/                    # Contains static assets like CSS, images, and uploaded files
 │   ├── file_template/
-│   │   └── Dietplan.xlsx      # Excel template for users to upload diet plans
+│   │   ├──General.xlsx        # Excel template for users to upload workout data
+│   │   └──Dietplan.xlsx       # Excel template for users to upload diet plans
 │   ├── food/
 │   │   └── food_data.csv      # Nutritional data for diet plans
 │   ├── img/                   # Stores images (e.g., logos, calendar visualizations)
@@ -74,8 +75,10 @@ Here is the project's file structure, along with a description of each component
    - Displays total workouts and the longest workout streak for each month.
 
 3. **Diet Plan Management**:
+   - We use the API to collect the food data from internet, store it as the csv file and as a database for us to calculate the calorie
    - Upload and manage diet plans using an Excel template.
-   - View detailed nutritional information for meals.
+   - After the user uplaod the file contain daily food intake for a period of time, we will match the food with our food_database and then return their actual daily calorie intake
+   - Input the use body information, and also the target weight, provide user a daily calorie intake refercenes 
 
 4. **Body Mass Index (BMI) Analysis**:
    - Gain a comprehensive analysis of your body mass index (BMI) trends over time. 
@@ -138,10 +141,10 @@ Users should upload workout data in the following format:
 ### Diet Plan Format
 Users can upload diet plans using the provided `Dietplan.xlsx` template:
 
-| Day       | Meal        | Calories | Protein (g) | Carbs (g) | Fats (g) |
-|-----------|-------------|----------|-------------|-----------|----------|
-| Monday    | Breakfast   | 300      | 15          | 40        | 10       |
-| Monday    | Lunch       | 500      | 20          | 60        | 15       |
+| Date      | food        | FoodWeight| 
+|-----------|-------------|---------- |
+| DD/MM/YY  | Apple       | 30        |
+| DD/MM/YY  | Beef        | 60        |
 
 ---
 
@@ -157,7 +160,7 @@ Users can upload diet plans using the provided `Dietplan.xlsx` template:
 4. **`calendar.html`**:
    - Visualizes workout schedules for a specific month.
 5. **`Dietplan.html`**:
-   - Displays uploaded diet plans with nutritional details.
+   - Displays uploaded diet plans with nutritional details, and display the graph for weight control reference
 6. **`bmi.html`**:
    - Allows users to calculate their BMI.
 7. **`login.html` and `signup.html`**:
