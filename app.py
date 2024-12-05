@@ -203,28 +203,31 @@ def test():
 def upload_file(name):
     global user_calendars  # Reference the global dictionary
 
-    file = request.files["file"]
-
+    file = request.files["file"] # Recieves the file uploaded by the user
+    # Checks for any error if the user pressed the upload button without uploading any file and shows an alert for this 
     if file.filename == "":
         return redirect(url_for("dashboard", msg="No File Uploaded", name=name))
     if file:
-        # Determine file type and read data
+        # Determine file type and read data from the file
         if file.filename.endswith(".csv"):
             data = pd.read_csv(file)
         elif file.filename.endswith(".xls") or file.filename.endswith(".xlsx"):
             data = pd.read_excel(file)
         else:
+            # Returns the dashboard page with the file type not supported to show the related alert
             return redirect(
                 url_for("dashboard", msg="File Type not supported", name=name)
             )
 
+        # The user's data is taken, and stored in his own unique excel sheet in our excel database available live on
+        # on the server
         file_path = "static/user_workout_DB/Users.xlsx"
         with pd.ExcelWriter(file_path, mode="a", if_sheet_exists="replace") as writer:
             data.to_excel(writer, sheet_name=f"workout_data_{name}", index=False)
 
-        # user_calendars[name] = CalendarVisualizer(file_path, name)
         user_calendars[name] = CalendarVisualizer(file_path, name, user_calendars)
 
+        # Message of successful upload sent to the user to show the related alert message of success!
         return redirect(url_for("dashboard", msg="File Uploaded", name=name))
 
 # Function for calculating the user BMI
@@ -237,7 +240,7 @@ def calculate_bmi(weight, height_cm):
 
 def calculate_weight(bmi, height):
     height_m = height / 100  # Convert height to meters
-    weight = bmi * (height_m**2)
+    weight = bmi * (height_m**2) #Calculate the weight
 
     return weight
 
@@ -255,13 +258,17 @@ def bmiCalc(name):
 @app.post("/dashboard/bmi-calculator/<name>")
 @flask_login.login_required
 def bmiCalculator(name):
+    # Recieve the weight and height the user enetered in the front-end
     weight = float(request.form["weight"])
     height = float(request.form["height"])
+    # Calculate the actual bmi
     bmi = calculate_bmi(weight, height)
+    # Get the minimum and maximum weight the user can have to have healthy bmi with his given height
     min_weight = round(calculate_weight(18.5, height), 2)
     max_weight = round(calculate_weight(24.9, height), 2)
     foodNutrition = []
 
+    # For the different nutrition recommendation to the user based on the category they fall in according to their current BMI
     if bmi < 18.5:
         category = "Underweight"
         foodNutrition = [
@@ -298,6 +305,7 @@ def bmiCalculator(name):
             "Lean proteins (chicken, turkey, fish)",
             "Whole grains (brown rice, quinoa, whole wheat)",
         ]
+    # Send the data to be rendered in the front-end html page
     return render_template(
         "bmi-calculator.html",
         name=name,
@@ -314,36 +322,39 @@ def bmiCalculator(name):
 @app.get("/dashboard/bmi/<name>")
 @flask_login.login_required
 def bmi(name):
-    bmi_stats_dict = {}
+    bmi_stats_dict = {} # A dictionary that will be passed to the html file that contains the stats of the BMI Analysis
     user = flask_login.current_user
+    # Try statement to catch any errors or exceptions
     try:
+        # Try to read the user data from the excel
         user_data = pd.read_excel(
             "static/user_workout_DB/Users.xlsx",
             sheet_name=["workout_data_%s" % user.username],
         )
         user_data = user_data["workout_data_%s" % user.username]
-        user_data["height_cm"] = user_data["height_cm"][0]
+        user_data["height_cm"] = user_data["height_cm"][0] #Get the height of the user and make it uniform for all days
 
-        user_data["Date"] = user_data["Date"].dt.date
+        user_data["Date"] = user_data["Date"].dt.date #Convert the date into a date object
         user_data["BMI"] = calculate_bmi(
             user_data["weight_record_kg"], user_data["height_cm"]
-        )
+        ) # Calculate the BMI for everyday for the user
         healthy_bmi_max = 24.9
         healthy_bmi_min = 18.5
-        count = user_data["BMI"].count()
+        count = user_data["BMI"].count() #Count the total number of days the user entered the data for
 
         bmi_stats_dict["DayCount"] = count
-        highestbmiIndex = user_data["BMI"].idxmax()
+        highestbmiIndex = user_data["BMI"].idxmax() # max BMI is calculated
         bmi_stats_dict["highestbmi"] = {
             "date": user_data.loc[highestbmiIndex]["Date"],
             "value": user_data["BMI"].max(),
         }
+        # Calculating The number of days for which the BMI of the user was in the healthy range
         healthyDays = 0
         for bmi in user_data["BMI"]:
             if bmi > 18.5 and bmi < 25:
                 healthyDays = healthyDays + 1
-        bmi_stats_dict["healthyDays"] = healthyDays
-        lowestbmiIndex = user_data["BMI"].idxmin()
+        bmi_stats_dict["healthyDays"] = healthyDays 
+        lowestbmiIndex = user_data["BMI"].idxmin() # min BMI is calculated
         bmi_stats_dict["lowestbmi"] = {
             "date": user_data.loc[lowestbmiIndex]["Date"],
             "value": user_data["BMI"].min(),
@@ -351,11 +362,12 @@ def bmi(name):
         bmi_stats_dict["avgbmi"] = round(user_data["BMI"].mean(), 2)
         bmi_stats_dict["stdbmi"] = round(user_data["BMI"].std(), 2)
 
+        # Forming the figure size
         fig = Figure(figsize=[11, 6])
         ax_arr = fig.subplots(ncols=1)
         ax = ax_arr
 
-        # Plot BMI data
+        # Plotting BMI data for the given number of days the user submitted the data for
         ax.plot(
             user_data["Date"],
             user_data["BMI"],
@@ -375,7 +387,7 @@ def bmi(name):
             zorder=100,
         )
 
-        # Add healthy BMI range
+        # Add healthy BMI range area, which will be colored green and shown on the plot
         ax.axhspan(
             healthy_bmi_min,
             healthy_bmi_max,
@@ -384,34 +396,35 @@ def bmi(name):
             alpha=0.2,
         )
 
-        # Set y-axis limits
+        # Setting the y-axis limits to be + 1 from the max so that there is always enough space at the top of the plot
         bmi_min = max(0, user_data["BMI"].min() - 1)
         bmi_max = user_data["BMI"].max() + 1
         ax.set_ylim(bmi_min, bmi_max)
 
-        # Customize plot appearance
+        # Customizing the plot appearance
         ax.set_xlabel("Date", fontsize=14, fontweight="bold")
         ax.set_ylabel("BMI", fontsize=14, fontweight="bold")
         ax.set_title(f"BMI throughout the {count} days", fontsize=18, fontweight="bold")
 
-        # Customize legend
+        # Customizing the plot legend
         ax.legend(loc="upper right", fontsize=12, framealpha=0.9)
 
-        # Customize grid
+        # Customizing the grid
         ax.grid(axis="y", linestyle="--", alpha=0.7, color="#666666")
         ax.grid(axis="x", linestyle="-", alpha=0.3, color="#999999")
 
-        # Customize ticks
+        # Customizing the ticks
         ax.tick_params(axis="both", labelsize=10)
 
         # Remove top and right spines
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
 
-        # Customize spine colors
+        # Customizing the spine colors
         ax.spines["bottom"].set_color("#666666")
         ax.spines["left"].set_color("#666666")
 
+        # Making the figure layout to be tighter so it looks better
         fig.tight_layout()
 
         # Convert plot to PNG image
@@ -422,6 +435,7 @@ def bmi(name):
         buf_str = "data:image/png;base64,"
         buf_str += base64.b64encode(buf.getvalue()).decode("utf8")
 
+        # Calculate the BMI category the latest average BMI of the user over the time period falls in
         if bmi_stats_dict["avgbmi"] < 18.5:
             category = "Underweight"
         elif bmi_stats_dict["avgbmi"] < 25:
@@ -431,6 +445,7 @@ def bmi(name):
         else:
             category = "Obese"
 
+        # Send the data to be rendered on the front-end html page
         return render_template(
             "bmi.html",
             imgsrc=buf_str,
@@ -438,6 +453,7 @@ def bmi(name):
             stat_dict=bmi_stats_dict,
             category=category,
         )
+    # Exception to display an alert message if the user tries to access the bmi analysis page before uploading any data
     except Exception as e:
         return redirect(url_for("dashboard", name=name, msg="Sheet not found"))
 

@@ -84,6 +84,7 @@ Here is the project's file structure, along with a description of each component
    - Gain a comprehensive analysis of your body mass index (BMI) trends over time. 
    - Visualize how your weight and health status have evolved. 
    - Gain valuable insights into BMI changes, categorizes weight status (underweight, normal, overweight, or obese), and important statistics related to your BMI.
+   - Calculate your BMI as well through our interactive BMI calculator!
 
 5. **Interactive User-Friendly Dashboard**:
    - Central hub to monitor fitness progress, access diet plans, and upload new data.
@@ -98,6 +99,24 @@ Here is the project's file structure, along with a description of each component
    - Displays clear error messages for invalid uploads or missing data.
 
 ---
+## Data Collection
+
+1. **General Data**:
+   - The users will uploading their own data regarding workout history in a past period of time, weight changes, 
+   and muscle groups of the body worked out
+   - A template is provided to the user to download, so they can edit that template, fill in their data in the 
+   given format and upload it for analysis
+   - The data is cleaned for any missing values and also standardised for the analysis tools in the app
+   - The height data is generalized and assumed as the same for all dates the user has entered the data for
+   as we are assuming that the user is an adult with no height changes expected
+   - In order upload new data the for its analysis the user can edit the same excel file, they uploaded before add
+   additional data and upload it, we will take this as the users new data and overwrite their previous data with this
+   new own in our excel database.
+   - The user's data is stored in our excel database with the user's own personal sheet for their general data. The database is available live on the server.
+
+2. **Dietplan Data**:
+---
+
 
 ## How to Run the Application
 
@@ -165,13 +184,18 @@ Users can upload diet plans using the provided `Dietplan.xlsx` template:
 5. **`Dietplan.html`**:
    - Displays uploaded diet plans with nutritional details, and display the graph for weight control reference
 6. **`bmi.html`**:
-   - Allows users to calculate their BMI.
+   - Allows users to see an analysis of their BMI through a scatter and line plot and show them for how long
+   their BMI was in the healthy range for the given amount of days and alaso showing some statistics for their BMI
+   analysis
 7. **`login.html` and `signup.html`**:
    - Login and registration pages for user authentication.
 8. **`upload.html`**:
    - Page for uploading files (workouts or diet plans).
 9. **`user_profile.html`**:
    - Displays user-specific details like name, email, and fitness stats.
+10. **`bmi-calculator.html`**:
+   - Allows the user to enter his current weight and height and calculates his BMI as well as providing nutritional
+   recommendations for how he can increase, decrease of mantain his weight to reach or stay in the healthy BMI range.
 
 ---
 
