@@ -20,7 +20,13 @@ Dashboard
     You did not upload any file! Please upload an Excel or CSV file.
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
+{% elif msg =='Error loading your workout data. Please upload it first.' %}
+<div class="alert alert-danger alert-dismissible fade show position-fixed start-50 translate-middle-x w-50 text-center" role="alert" style="bottom: 20%; z-index: 1050;">
+    You did not upload any file! Please upload an Excel or CSV file.
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
 {% endif %}
+
 <div class="container-fluid">
     <div class="row vh-100">
         <!-- Main content section with full-width layout -->
