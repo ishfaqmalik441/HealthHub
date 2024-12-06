@@ -115,6 +115,54 @@ Here is the project's file structure, along with a description of each component
    - The user's data is stored in our excel database with the user's own personal sheet for their general data. The database is available live on the server.
 
 2. **Dietplan Data**:
+   - The users will uploading their own diet data in a past period of time, included what kind of foods, and the weight
+   - A template is provided to the user to download, the data already filled in advance as an example, user can follow the format to edit their own actual data
+   - The database we use to calculaet the food calorie was through API to collect data from the https://api.nal.usda.gov/fdc/v1/foods/search API KEY: faH6tAzZ8V9ltT9U9ET0s3We9gjpqjNqjtj1A3eW
+   - To calcuate the target intake per day, user also need to input their current body data, such as weight, and height
+   - Consider the diet plan is changine everyday, user will need to upload a new file everytime
+   - Here is the code for running the API:
+      
+      import requests
+      import pandas as pd
+      import random
+
+      api_key = "faH6tAzZ8V9ltT9U9ET0s3We9gjpqjNqjtj1A3eW"
+      url = "https://api.nal.usda.gov/fdc/v1/foods/search"
+      params = {'query': 'food','api_key': api_key,'pageSize': 10,}
+      food_data = [] 
+      target_count = 5000
+      
+      while len(food_data) < target_count:
+         params['pageNumber'] = random.randint(1, 1000)  
+         response = requests.get(url, params=params)
+    
+
+         if response.status_code != 200:
+            print(f"Error: Unable to fetch data (status code {response.status_code})")
+            continue
+    
+         data = response.json()
+         
+         for food in data.get('foods', []):
+            food_name = food.get('description', 'N/A')
+            nutrients = food.get('foodNutrients', [])
+            calories = next((nutrient['value'] for nutrient in nutrients if nutrient.get('nutrientName') == 'Energy'), 'N/A')
+        
+            food_data.append({'Food Name': food_name,'Calories': calories})
+        
+            if len(food_data) >= target_count:
+               break
+
+            print(f"Fetched {len(food_data)} items so far...")
+
+      df = pd.DataFrame(food_data)
+      output_file = 'food_calories.xlsx'
+      df.to_excel(output_file, index=False)
+
+      print("\nSample Food Items:")
+      print(df.head(20).to_string(index=False))
+
+      print(f"\nSuccessfully saved {len(food_data)} food items to {output_file}")            
 ---
 
 
