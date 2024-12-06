@@ -122,6 +122,7 @@ Here is the project's file structure, along with a description of each component
    - Consider the diet plan is changine everyday, user will need to upload a new file everytime
    - Here is the code for running the API:
       
+      '''
       import requests
       import pandas as pd
       import random
@@ -162,7 +163,8 @@ Here is the project's file structure, along with a description of each component
       print("\nSample Food Items:")
       print(df.head(20).to_string(index=False))
 
-      print(f"\nSuccessfully saved {len(food_data)} food items to {output_file}")            
+      print(f"\nSuccessfully saved {len(food_data)} food items to {output_file}")      
+      '''      
 ---
 
 
